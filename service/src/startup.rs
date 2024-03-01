@@ -4,14 +4,14 @@ use hyper::server::conn::http1;
 use hyper::service::service_fn;
 use hyper::{Method, Request, Response, StatusCode};
 use hyper_util::rt::TokioIo;
-use log::{info, warn};
+use log::{error, info, warn};
 use tokio::net::TcpListener;
 
 pub async fn run(
     tcp_listener: TcpListener,
     name: String,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    println!(
+    info!(
         "Starting server at: {}:{}",
         &tcp_listener.local_addr()?.ip().to_string(),
         tcp_listener.local_addr()?.port()
@@ -28,7 +28,7 @@ pub async fn run(
                 .serve_connection(io, service_fn(|r| request_handler(r, name.as_str())))
                 .await
             {
-                println!("Error serving connection: {:?}", err);
+                error!("Error serving connection: {:?}", err);
             }
         });
     }

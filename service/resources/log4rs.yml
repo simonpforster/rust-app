@@ -4,9 +4,9 @@ appenders:
   stdout:
     kind: console
     encoder:
-      pattern: "{d} - {m}{n}"
+      pattern: "{d} {l} - {m}{n}"
 
 root:
-  level: warn
+  level: info
   appenders:
     - stdout
