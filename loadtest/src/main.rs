@@ -23,7 +23,7 @@ async fn main() -> Result<(), GooseError> {
         )
         .set_default(GooseDefault::Host, "http://localhost:8080")?
         .set_default(GooseDefault::NoPrintMetrics, true)?
-        .set_default(GooseDefault::StartupTime, 120)?
+        .set_default(GooseDefault::StartupTime, 30)?
         .set_default(GooseDefault::ThrottleRequests, 1000)?
         .execute()
         .await?;

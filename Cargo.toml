@@ -1,7 +1,8 @@
 [workspace]
-resolver = "1"
+resolver = "2"
 members = [
-    "service"
+    "service",
+    "loadtest"
 ]
 
 [profile.release]
