@@ -18,10 +18,11 @@ async fn main() -> Result<(), GooseError> {
                 .set_weight(10)?
                 .register_transaction(transaction!(loadtest_list_users)),
         )
+        .set_default(GooseDefault::ReportFile, "./target/loadtest_report.html")?
         .set_default(GooseDefault::Host, "http://localhost:8080")?
-        .set_default(GooseDefault::NoPrintMetrics, true)?
+        .set_default(GooseDefault::NoPrintMetrics, false)?
         .set_default(GooseDefault::StartupTime, 30)?
-        .set_default(GooseDefault::ThrottleRequests, 1000)?
+        .set_default(GooseDefault::ThrottleRequests, 300)?
         .execute()
         .await?;
 
