@@ -45,7 +45,7 @@ async fn request_handler(
         }
         (&Method::GET, "/private/status") => Ok(Response::new(full("OK"))),
         (method @ _, path @ _) => {
-            warn!(format!("Endpoint not found {}", path + method));
+            warn!("Endpoint not found {}", path + method);
             let mut not_found = Response::new(empty());
             *not_found.status_mut() = StatusCode::NOT_FOUND;
             Ok(not_found)
