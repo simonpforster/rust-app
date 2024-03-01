@@ -8,3 +8,11 @@
 
 ``cargo run --bin loadtest`` while service is running
 
+## Completion checklist
+
+ - [ ] Unit tests
+ - [ ] Functional tests
+ - [X] Performance tests
+ - [ ] Stubs
+ - [ ] ...
+
