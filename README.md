@@ -14,5 +14,7 @@
  - [ ] Functional tests
  - [X] Performance tests
  - [ ] Stubs
+ - [ ] Tracing
+ - [ ] Prometheus metrics
  - [ ] ...
 

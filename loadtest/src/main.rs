@@ -1,8 +1,7 @@
 mod scenarios;
 
 use goose::prelude::*;
-use crate::scenario;
-use crate::scenarios::regular::regular;
+use scenarios::regular::regular;
 
 #[tokio::main]
 async fn main() -> Result<(), GooseError> {
