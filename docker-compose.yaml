@@ -3,8 +3,8 @@ name: "rust-app"
 
 services:
 
-  rust-service:
-    build: rust-service/.
-    image: localhost/rust-service:latest
+  service:
+    build: service/.
+    image: localhost/service:latest
     ports:
       - "8080:8080"
