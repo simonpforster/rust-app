@@ -43,9 +43,12 @@ async fn request_handler(
             info!("Hello reached");
             Ok(Response::new(full(format!("Hello from server {}", name))))
         }
-        (&Method::GET, "/private/status") => Ok(Response::new(full("OK"))),
+        (&Method::GET, "/private/status") => {
+            info!("Healthcheck polled");
+            Ok(Response::new(full("OK")))
+        },
         (method @ _, path @ _) => {
-            warn!("Endpoint not found {}", path + method);
+            warn!("Endpoint not found {} {}", method.as_str(), path);
             let mut not_found = Response::new(empty());
             *not_found.status_mut() = StatusCode::NOT_FOUND;
             Ok(not_found)
