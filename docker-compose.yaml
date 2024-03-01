@@ -1,0 +1,10 @@
+version: '3.9'
+name: "rust-app"
+
+services:
+
+  rust-service:
+    build: rust-service/.
+    image: localhost/rust-service:latest
+    ports:
+      - "8080:8080"
