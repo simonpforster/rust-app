@@ -4,6 +4,7 @@ use hyper::server::conn::http1;
 use hyper::service::service_fn;
 use hyper::{Method, Request, Response, StatusCode};
 use hyper_util::rt::TokioIo;
+use log::{info, warn};
 use tokio::net::TcpListener;
 
 pub async fn run(
@@ -38,9 +39,13 @@ async fn request_handler(
     name: &str,
 ) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
     match (req.method(), req.uri().path()) {
-        (&Method::GET, "/") => Ok(Response::new(full(format!("Hello from server {}", name)))),
+        (&Method::GET, "/") => {
+            info!("Hello reached");
+            Ok(Response::new(full(format!("Hello from server {}", name))))
+        }
         (&Method::GET, "/private/status") => Ok(Response::new(full("OK"))),
-        (_, _) => {
+        (method @ _, path @ _) => {
+            warn!(format!("Endpoint not found {}", path + method));
             let mut not_found = Response::new(empty());
             *not_found.status_mut() = StatusCode::NOT_FOUND;
             Ok(not_found)
