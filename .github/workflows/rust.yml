@@ -12,6 +12,8 @@ env:
 jobs:
   build:
 
+    name: "Rust Build"
+
     runs-on: ubuntu-latest
 
     steps:
