@@ -4,6 +4,7 @@ members = [
     "service",
     "loadtest"
 ]
+default-run = "service"
 
 [profile.release]
 strip = true

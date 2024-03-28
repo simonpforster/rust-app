@@ -1,0 +1,20 @@
+openapi: 3.0.0
+info:
+  title: Rust App
+  description: Personal development project.
+  version: 0.0.1
+servers:
+  - url: http://localhost:8080
+    description: Local server.
+paths:
+  /private/status:
+    get:
+      summary: Returns a 200 if reachable.
+      description: Returns a 200 if reachable.
+      responses:
+        '200':    # status code
+          description: OK
+          content:
+            application/plain:
+              schema:
+                type: string
