@@ -10,6 +10,9 @@ pub(crate) async fn request_handler(
     name: &str,
 ) -> ResponseResult {
     match (req.method(), req.uri().path()) {
+        (&Method::GET, "/") => {
+            routes::default::route(name)
+        },
         (&Method::GET, "/private/status") => {
             routes::private::status()
         },
