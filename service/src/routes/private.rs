@@ -1,9 +1,10 @@
 use http_body_util::combinators::BoxBody;
 use hyper::Response;
 use log::info;
+use crate::router::ResponseResult;
 use crate::routes::utils;
 
-pub fn status() -> Result<Response<BoxBody<bytes::Bytes, hyper::Error>>, hyper::Error> {
+pub fn status() -> ResponseResult {
     info!("Healthcheck polled");
     Ok(Response::new(utils::full("OK")))
 }
