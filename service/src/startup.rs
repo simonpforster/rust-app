@@ -6,6 +6,7 @@ use hyper::{Method, Request, Response, StatusCode};
 use hyper_util::rt::TokioIo;
 use log::{error, info, warn};
 use tokio::net::TcpListener;
+use crate::{router, routes};
 
 pub async fn run(
     tcp_listener: TcpListener,
@@ -25,7 +26,7 @@ pub async fn run(
         tokio::task::spawn(async move {
             if let Err(err) = http1::Builder::new()
                 // `service_fn` converts our function in a `Service`
-                .serve_connection(io, service_fn(|r| request_handler(r, name.as_str())))
+                .serve_connection(io, service_fn(|r| router::request_handler(r, name.as_str())))
                 .await
             {
                 error!("Error serving connection: {:?}", err);
@@ -34,37 +35,5 @@ pub async fn run(
     }
 }
 
-async fn request_handler(
-    req: Request<hyper::body::Incoming>,
-    name: &str,
-) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
-    match (req.method(), req.uri().path()) {
-        (&Method::GET, "/") => {
-            info!("Hello reached");
-            Ok(Response::new(full(format!("Hello from server {}", name))))
-        }
-        (&Method::GET, "/private/status") => {
-            info!("Healthcheck polled");
-            Ok(Response::new(full("OK")))
-        },
-        (method @ _, path @ _) => {
-            warn!("Endpoint not found {} {}", method.as_str(), path);
-            let mut not_found = Response::new(empty());
-            *not_found.status_mut() = StatusCode::NOT_FOUND;
-            Ok(not_found)
-        }
-    }
-}
 
-// We create some utility functions to make Empty and Full bodies
-// fit our broadened Response body type.
-fn empty() -> BoxBody<Bytes, hyper::Error> {
-    Empty::<Bytes>::new()
-        .map_err(|never| match never {})
-        .boxed()
-}
-fn full<T: Into<Bytes>>(chunk: T) -> BoxBody<Bytes, hyper::Error> {
-    Full::new(chunk.into())
-        .map_err(|never| match never {})
-        .boxed()
-}
+
