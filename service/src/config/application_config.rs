@@ -2,10 +2,11 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
 pub struct ApplicationConfig {
-    logging: LoggerConfig,
+    pub logging: LoggerConfig,
 }
 
+#[derive(Deserialize, Debug)]
 pub struct LoggerConfig {
-    log_level: String,
-    pattern: String,
+    pub log_level: String,
+    pub pattern: String,
 }
