@@ -1,6 +1,7 @@
 use service::startup;
 use std::net::SocketAddr;
 use std::str::FromStr;
+use configured::Configured;
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::{Config, Handle};
 use tokio::net::TcpListener;
@@ -13,7 +14,8 @@ use service::config::config_reader;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
-    let config: ApplicationConfig = config_reader::read();
+    let config: ApplicationConfig = config_reader::load();
+
     logger_setup(&config.logging).unwrap();
 
     let server_name: String = String::from("SERVER IS NAME");

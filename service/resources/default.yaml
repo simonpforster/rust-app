@@ -1,0 +1,6 @@
+logging:
+  log-level: info
+  pattern: "{d} {l} - {m}{n}"
+
+downstream-one:
+  url: "localhost:8081"

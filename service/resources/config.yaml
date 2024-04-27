@@ -1,4 +1,0 @@
-logging:
-  log_level: info
-  pattern: "{d} {l} - {m}{n}"
-

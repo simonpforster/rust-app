@@ -1,9 +1,9 @@
-use std::fs::File;
-use std::io::BufReader;
+use std;
+use std::env;
+use std::fmt::{self, Display};
+use configured::{CONFIG_DIR, Configured};
 use serde::de;
 use crate::config::application_config::ApplicationConfig;
-use std;
-use std::fmt::{self, Display};
 
 #[derive(Debug)]
 pub enum Error {
@@ -14,11 +14,9 @@ pub enum Error {
     TrailingCharacters,
 }
 
-pub fn read() -> ApplicationConfig {
-
-    let file = File::open("resources/config.yaml").unwrap();
-    let reader  = BufReader::new(file);
-    serde_yaml::from_reader(reader).unwrap()
+pub fn load() -> ApplicationConfig {
+    env::set_var(CONFIG_DIR, "resources");
+    ApplicationConfig::load().unwrap()
 }
 
 impl de::Error for Error {
