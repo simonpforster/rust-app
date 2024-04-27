@@ -1,5 +1,6 @@
 use std;
 use std::env;
+use std::env::VarError;
 use std::fmt::{self, Display};
 use configured::{CONFIG_DIR, Configured};
 use serde::de;
@@ -14,8 +15,15 @@ pub enum Error {
     TrailingCharacters,
 }
 
+fn default_config_vars() -> Result<(), Error> {
+    drop(env::var(CONFIG_DIR).map_err(|_| {
+        env::set_var(CONFIG_DIR, "resources")
+    }));
+    Ok(())
+}
+
 pub fn load() -> ApplicationConfig {
-    env::set_var(CONFIG_DIR, "resources");
+    drop(default_config_vars());
     ApplicationConfig::load().unwrap()
 }
 
