@@ -14,19 +14,22 @@ use service::config::config_reader;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
+    info!("Loading config.");
     let config: ApplicationConfig = config_reader::load();
 
     logger_setup(&config.logging).unwrap();
 
     let server_name: String = String::from("SERVER IS NAME");
 
-    let address1: SocketAddr = ([0, 0, 0, 0], 8080).into();
+    let address1: SocketAddr = ([0, 0, 0, 0], &config.server.port).into();
+
+    info!("Starting server on port {}.", &config.server.port);
     let listener = TcpListener::bind(address1).await?;
     startup::run(listener, server_name)
         .await
         .expect("Unable to start the server");
 
-    info!("Listening on http://{}", address1);
+    info!("Server is listening on http://{}", address1);
 
     Ok(())
 }

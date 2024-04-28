@@ -3,6 +3,7 @@ use std::env;
 use std::env::VarError;
 use std::fmt::{self, Display};
 use configured::{CONFIG_DIR, Configured};
+use log::{info, warn};
 use serde::de;
 use crate::config::application_config::ApplicationConfig;
 
@@ -15,15 +16,16 @@ pub enum Error {
     TrailingCharacters,
 }
 
-fn default_config_vars() -> Result<(), Error> {
+fn default_configured_vars() -> Result<(), Error> {
     drop(env::var(CONFIG_DIR).map_err(|_| {
-        env::set_var(CONFIG_DIR, "resources")
+        warn!("Loading default configuration folder.");
+        env::set_var(CONFIG_DIR, "service/resources")
     }));
     Ok(())
 }
 
 pub fn load() -> ApplicationConfig {
-    drop(default_config_vars());
+    drop(default_configured_vars());
     ApplicationConfig::load().unwrap()
 }
 

@@ -5,6 +5,7 @@ use serde::Deserialize;
 pub struct ApplicationConfig {
     pub logging: LoggerConfig,
     pub downstream_one: DownstreamOneConfig,
+    pub server: ServerConfig,
 }
 
 #[derive(Deserialize, Debug)]
@@ -12,6 +13,12 @@ pub struct ApplicationConfig {
 pub struct LoggerConfig {
     pub log_level: String,
     pub pattern: String,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct ServerConfig {
+    pub port: String,
 }
 
 #[derive(Deserialize, Debug)]
