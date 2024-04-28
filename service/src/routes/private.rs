@@ -14,7 +14,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn test_status() {
+    async fn status_ok() {
         let response = status().unwrap_or_default();
         let (parts, some) = response.into_parts();
 
