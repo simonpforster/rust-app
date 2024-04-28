@@ -18,7 +18,7 @@ pub struct LoggerConfig {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "kebab-case")]
 pub struct ServerConfig {
-    pub port: String,
+    pub port: u16,
 }
 
 #[derive(Deserialize, Debug)]

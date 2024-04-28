@@ -1,9 +1,8 @@
 use std;
 use std::env;
-use std::env::VarError;
 use std::fmt::{self, Display};
 use configured::{CONFIG_DIR, Configured};
-use log::{info, warn};
+use log::warn;
 use serde::de;
 use crate::config::application_config::ApplicationConfig;
 

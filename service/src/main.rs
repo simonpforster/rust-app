@@ -1,7 +1,6 @@
 use service::startup;
-use std::net::SocketAddr;
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::str::FromStr;
-use configured::Configured;
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::{Config, Handle};
 use tokio::net::TcpListener;
@@ -21,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let server_name: String = String::from("SERVER IS NAME");
 
-    let address1: SocketAddr = ([0, 0, 0, 0], &config.server.port).into();
+    let address1: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), config.server.port);
 
     info!("Starting server on port {}.", &config.server.port);
     let listener = TcpListener::bind(address1).await?;
