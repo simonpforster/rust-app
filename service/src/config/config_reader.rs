@@ -1,6 +1,7 @@
 use std;
 use std::env;
-use std::fmt::{self, Display};
+use std::fmt;
+use std::fmt::Display;
 use configured::{CONFIG_DIR, Configured};
 use log::warn;
 use serde::de;
