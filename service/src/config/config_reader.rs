@@ -48,3 +48,29 @@ impl Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+#[cfg(test)]
+mod tests {
+    use std::env;
+    use configured::CONFIG_DIR;
+    use crate::config::config_reader::default_configured_vars;
+
+    #[test]
+    fn test_default_variables() {
+        env::remove_var(CONFIG_DIR);
+
+        drop(default_configured_vars());
+
+        assert_eq!(env::var(CONFIG_DIR).unwrap(), "service/resources")
+    }
+
+    #[test]
+    fn test_override_default_variables() {
+        env::set_var(CONFIG_DIR, "resources");
+
+        drop(default_configured_vars());
+
+        assert_eq!(env::var(CONFIG_DIR).unwrap(), "resources")
+    }
+
+}
