@@ -7,7 +7,7 @@ RUN cargo install --path .
 FROM debian:buster-slim as runner
 COPY --from=builder /usr/local/cargo/bin/service /usr/local/bin/service
 COPY --from=builder /service/resources /resources
-
+ENV CONFIG_DIR="resources"
 
 EXPOSE 8080
 
