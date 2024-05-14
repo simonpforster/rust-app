@@ -9,25 +9,6 @@ pub struct ApplicationConfig {
     pub server: ServerConfig,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub struct LoggerConfig {
-    pub log_level: String,
-    pub pattern: String,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub struct ServerConfig {
-    pub port: u16,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub struct DownstreamOneConfig {
-    pub url: String,
-}
-
 impl PartialEq for ApplicationConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.logging == other.logging)
@@ -42,6 +23,14 @@ impl fmt::Display for ApplicationConfig {
     }
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct LoggerConfig {
+    pub log_level: String,
+    pub pattern: String,
+}
+
+
 impl PartialEq for LoggerConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.log_level == other.log_level)
@@ -55,6 +44,12 @@ impl fmt::Display for LoggerConfig {
     }
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct ServerConfig {
+    pub port: u16,
+}
+
 impl PartialEq for ServerConfig {
     fn eq(&self, other: &Self) -> bool {
         self.port == other.port
@@ -65,6 +60,12 @@ impl fmt::Display for ServerConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "server:\n  port: {}\n", self.port)
     }
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct DownstreamOneConfig {
+    pub url: String,
 }
 
 impl PartialEq for DownstreamOneConfig {
