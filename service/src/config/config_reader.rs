@@ -1,76 +1,41 @@
-use std;
 use std::env;
-use std::fmt;
-use std::fmt::Display;
-use configured::{CONFIG_DIR, Configured};
-use log::warn;
-use serde::de;
-use crate::config::application_config::ApplicationConfig;
 
-#[derive(Debug)]
+use config::{Case, Config, ConfigError, Environment, File};
+use serde::Deserialize;
+use thiserror::Error;
+
+pub trait Configuration: Sized {
+    /// Load this configuration.
+    fn load() -> Result<Self, Error>;
+}
+
+impl<'de, T> Configuration for T
+    where
+        T: Deserialize<'de>,
+{
+    fn load() -> Result<Self, Error> {
+        let config_dir = "service/resources";
+
+        let env = env::var("ENVIRONMENT").unwrap_or("development".into());
+
+        Config::builder()
+            .add_source(File::with_name(&format!("{}/config.yaml", config_dir)))
+            .add_source(File::with_name(&format!("{}/config_{}.yaml", config_dir, env)))
+            .add_source(Environment::default().convert_case(Case::Kebab))
+            .build()
+            .map_err(Error::Load)?
+            .try_deserialize()
+            .map_err(Error::Deserialize)
+    }
+}
+
+#[derive(Debug, Error)]
 pub enum Error {
-    Message(String),
-    Eof,
-    Syntax,
-    ExpectedString,
-    TrailingCharacters,
-}
+    /// Cannot load the configuration, e.g. because file not found.
+    #[error("cannot load configuration")]
+    Load(#[source] ConfigError),
 
-fn default_configured_vars() -> Result<(), Error> {
-    drop(env::var(CONFIG_DIR).map_err(|_| {
-        warn!("Loading default configuration folder.");
-        env::set_var(CONFIG_DIR, "service/resources")
-    }));
-    Ok(())
-}
-
-pub fn load() -> ApplicationConfig {
-    drop(default_configured_vars());
-    ApplicationConfig::load().unwrap()
-}
-
-impl de::Error for Error {
-    fn custom<T: Display>(msg: T) -> Self {
-        Error::Message(msg.to_string())
-    }
-}
-
-impl Display for Error {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Error::Message(msg) => formatter.write_str(msg),
-            Error::Eof => formatter.write_str("unexpected end of input"),
-            Error::Syntax => formatter.write_str("wrong syntax"),
-            Error::ExpectedString => formatter.write_str("expected a string, did not get"),
-            Error::TrailingCharacters => formatter.write_str("trailing characters"),
-        }
-    }
-}
-
-impl std::error::Error for Error {}
-
-#[cfg(test)]
-mod tests {
-    use std::env;
-    use configured::CONFIG_DIR;
-    use crate::config::config_reader::default_configured_vars;
-
-    #[test]
-    fn test_default_variables() {
-        env::remove_var(CONFIG_DIR);
-
-        drop(default_configured_vars());
-
-        assert_eq!(env::var(CONFIG_DIR).unwrap(), "service/resources")
-    }
-
-    #[test]
-    fn test_override_default_variables() {
-        env::set_var(CONFIG_DIR, "resources");
-
-        drop(default_configured_vars());
-
-        assert_eq!(env::var(CONFIG_DIR).unwrap(), "resources")
-    }
-
+    /// Cannot deserialzie the configuration, e.g. because fields are missing.
+    #[error("cannot deserialize configuration")]
+    Deserialize(#[source] ConfigError),
 }

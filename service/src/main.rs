@@ -8,13 +8,13 @@ use log::{info, LevelFilter, SetLoggerError};
 use log4rs::config::{Appender, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use service::config::application_config::{ApplicationConfig, LoggerConfig};
-use service::config::config_reader;
+use service::config::config_reader::Configuration;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     info!("Loading config.");
-    let config: ApplicationConfig = config_reader::load();
+    let config: ApplicationConfig = ApplicationConfig::load().unwrap();
 
     logger_setup(&config.logging).unwrap();
 
