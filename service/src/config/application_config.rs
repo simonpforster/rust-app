@@ -1,3 +1,4 @@
+use std::fmt;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
@@ -8,25 +9,6 @@ pub struct ApplicationConfig {
     pub server: ServerConfig,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub struct LoggerConfig {
-    pub log_level: String,
-    pub pattern: String,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub struct ServerConfig {
-    pub port: u16,
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "kebab-case")]
-pub struct DownstreamOneConfig {
-    pub url: String,
-}
-
 impl PartialEq for ApplicationConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.logging == other.logging)
@@ -35,11 +17,37 @@ impl PartialEq for ApplicationConfig {
     }
 }
 
+impl fmt::Display for ApplicationConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}\n{}\n{}\n", self.logging, self.server, self.downstream_one)
+    }
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct LoggerConfig {
+    pub log_level: String,
+    pub pattern: String,
+}
+
+
 impl PartialEq for LoggerConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.log_level == other.log_level)
             & (self.pattern == other.pattern)
     }
+}
+
+impl fmt::Display for LoggerConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "logging:\n  log-level: {} \n  pattern: {}\n", self.log_level, self.pattern)
+    }
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct ServerConfig {
+    pub port: u16,
 }
 
 impl PartialEq for ServerConfig {
@@ -48,9 +56,27 @@ impl PartialEq for ServerConfig {
     }
 }
 
+impl fmt::Display for ServerConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "server:\n  port: {}\n", self.port)
+    }
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct DownstreamOneConfig {
+    pub url: String,
+}
+
 impl PartialEq for DownstreamOneConfig {
     fn eq(&self, other: &Self) -> bool {
         self.url == other.url
+    }
+}
+
+impl fmt::Display for DownstreamOneConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "downstream_one:\n  url: {}\n", self.url)
     }
 }
 

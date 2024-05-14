@@ -8,21 +8,21 @@ use log::{info, LevelFilter, SetLoggerError};
 use log4rs::config::{Appender, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use service::config::application_config::{ApplicationConfig, LoggerConfig};
-use service::config::config_reader;
+use configloader::Configuration;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
-    info!("Loading config.");
-    let config: ApplicationConfig = config_reader::load();
+    let config: ApplicationConfig = ApplicationConfig::load(&module_path!().to_string()).unwrap();
 
     logger_setup(&config.logging).unwrap();
+    
+    info!("Loading config: \n{}", config);
 
     let server_name: String = String::from("SERVER IS NAME");
 
     let address1: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), config.server.port);
 
-    info!("Starting server on port {}.", &config.server.port);
     let listener = TcpListener::bind(address1).await?;
     startup::run(listener, server_name)
         .await
