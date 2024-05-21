@@ -6,7 +6,7 @@
 
   "response": {
     "status": 200,
-    "body": "Ok",
+    "body": "OK",
     "headers": {
       "Content-Type": "text/plain"
     }

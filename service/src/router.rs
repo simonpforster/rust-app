@@ -16,6 +16,9 @@ pub(crate) async fn request_handler(
         (&Method::GET, "/private/status") => {
             routes::private::status()
         },
+        (&Method::GET, "/private/healthcheck") => {
+            routes::private::healthcheck().await
+        },
         (method @ _, path @ _) => {
             routes::utils::no_endpoint(method, path)
         }
