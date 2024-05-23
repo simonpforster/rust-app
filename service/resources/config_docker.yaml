@@ -1,0 +1,2 @@
+downstream-one:
+  url: "http://stub:8080/private/status"
