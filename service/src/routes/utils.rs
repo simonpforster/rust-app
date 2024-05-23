@@ -1,9 +1,9 @@
+use crate::router;
 use bytes::Bytes;
 use http_body_util::combinators::BoxBody;
 use http_body_util::{BodyExt, Empty, Full};
 use hyper::{Method, Response, StatusCode};
 use log::warn;
-use crate::router;
 
 // We create some utility functions to make Empty and Full bodies
 // fit our broadened Response body type.

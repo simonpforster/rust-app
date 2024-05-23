@@ -1,21 +1,23 @@
+use crate::clients::healthcheck::{Healthcheck, Result, Status};
+use async_trait::async_trait;
 use bytes::Bytes;
 use http_body_util::Empty;
 use hyper::{Request, StatusCode, Uri};
 use hyper_util::rt::TokioIo;
 use log::info;
+use std::time::Duration;
 use tokio::net::TcpStream;
-use crate::clients::healthcheck::{Result, Healthcheck, Status};
 
+#[derive(Clone)]
 pub struct DownstreamOneClient {
-    pub(crate) url: Uri,
+    pub url: Uri,
 }
 
+#[async_trait]
 impl Healthcheck for DownstreamOneClient {
-    
     async fn healthcheck(&self) -> Result<Status> {
-
-        let host = self.url.host().expect("uri has no host");
-        let port = self.url.port_u16().unwrap_or(80);
+        let host = &self.url.host().expect("uri has no host");
+        let port = &self.url.port_u16().unwrap_or(80);
         let addr = format!("{}:{}", host, port);
 
         let stream = TcpStream::connect(addr).await?;
@@ -28,7 +30,7 @@ impl Healthcheck for DownstreamOneClient {
             }
         });
 
-        let authority = self.url.authority().unwrap().clone();
+        let authority = &self.url.authority().unwrap().clone();
 
         // Fetch the url...
         let req = Request::builder()
@@ -36,17 +38,21 @@ impl Healthcheck for DownstreamOneClient {
             .header(hyper::header::HOST, authority.as_str())
             .body(Empty::<Bytes>::new())?;
 
-        let res = sender.send_request(req).await?;
-
-        match res.status() {
-            StatusCode::OK => {
-                info!("downstream 1 healthy");
-                Ok(Status::Healthy)
+        match tokio::time::timeout(Duration::from_millis(2000), sender.send_request(req)).await {
+            Ok(result) => match result {
+                Ok(response) => match response.status() {
+                    StatusCode::OK => {
+                        info!("downstream 1 healthy");
+                        Ok(Status::Healthy)
+                    }
+                    _ => {
+                        info!("downstream 1 unhealthy");
+                        Ok(Status::Unhealthy)
+                    }
+                },
+                Err(e) => Err(Box::from(format!("Network error: {:?}", e))),
             },
-            _ => {
-                info!("downstream 1 unhealthy");
-                Ok(Status::Unhealthy)
-            }
+            Err(_) => Err(Box::from("Timeout: no response in 2 seconds.")),
         }
     }
 }

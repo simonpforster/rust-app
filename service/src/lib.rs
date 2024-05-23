@@ -1,6 +1,6 @@
-pub mod startup;
-mod routes;
+pub mod clients;
 pub mod config;
 mod router;
-mod services;
-mod clients;
+mod routes;
+pub mod services;
+pub mod startup;

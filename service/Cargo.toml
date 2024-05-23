@@ -17,8 +17,9 @@ log4rs = "1.3.0"
 bytes = "1.6.0"
 serde = { version = "1.0.202", features = ["derive"] }
 serde_yaml = "0.9"
-configloader = { path = "../configloader" }
 serde_json = "1.0.117"
+configloader = { path = "../configloader" }
+async-trait = "0.1.79"
 
 [dev-dependencies]
 reqwest = "0.12.4"

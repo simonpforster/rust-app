@@ -1,5 +1,5 @@
-use std::fmt;
 use serde::Deserialize;
+use std::fmt;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "kebab-case")]
@@ -19,7 +19,11 @@ impl PartialEq for ApplicationConfig {
 
 impl fmt::Display for ApplicationConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}\n{}\n{}\n", self.logging, self.server, self.downstream_one)
+        write!(
+            f,
+            "{}\n{}\n{}\n",
+            self.logging, self.server, self.downstream_one
+        )
     }
 }
 
@@ -30,17 +34,19 @@ pub struct LoggerConfig {
     pub pattern: String,
 }
 
-
 impl PartialEq for LoggerConfig {
     fn eq(&self, other: &Self) -> bool {
-        (self.log_level == other.log_level)
-            & (self.pattern == other.pattern)
+        (self.log_level == other.log_level) & (self.pattern == other.pattern)
     }
 }
 
 impl fmt::Display for LoggerConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "logging:\n  log-level: {} \n  pattern: {}\n", self.log_level, self.pattern)
+        write!(
+            f,
+            "logging:\n  log-level: {} \n  pattern: {}\n",
+            self.log_level, self.pattern
+        )
     }
 }
 
@@ -82,13 +88,13 @@ impl fmt::Display for DownstreamOneConfig {
 
 #[cfg(test)]
 mod tests {
-    use crate::config::application_config::{DownstreamOneConfig, LoggerConfig, ServerConfig};
     use super::*;
+    use crate::config::application_config::{DownstreamOneConfig, LoggerConfig, ServerConfig};
 
     #[test]
-    fn test_app_conf_struct() { // TODO needs refining of what needs to be tested
-        let test_config_str: &str =
-            "
+    fn test_app_conf_struct() {
+        // TODO needs refining of what needs to be tested
+        let test_config_str: &str = "
             logging:
               log-level: info
               pattern: \"{d} {l} - {m}{n}\"
@@ -106,12 +112,12 @@ mod tests {
                 log_level: "info".to_string(),
                 pattern: "{d} {l} - {m}{n}".to_string(),
             },
-            downstream_one: DownstreamOneConfig { url: "localhost:8081".to_string() },
+            downstream_one: DownstreamOneConfig {
+                url: "localhost:8081".to_string(),
+            },
             server: ServerConfig { port: 8080 },
         };
 
         assert_eq!(parsed_config, test_against)
     }
 }
-
-
