@@ -10,11 +10,15 @@ use tokio::net::TcpStream;
 
 #[derive(Clone)]
 pub struct DownstreamOneClient {
+    pub name: String,
     pub url: Uri,
 }
 
 #[async_trait]
 impl Healthcheck for DownstreamOneClient {
+
+    fn get_name(&self) -> &str { &self.name }
+        
     async fn healthcheck(&self) -> Result<Status> {
         let host = &self.url.host().expect("uri has no host");
         let port = &self.url.port_u16().unwrap_or(80);
@@ -40,19 +44,22 @@ impl Healthcheck for DownstreamOneClient {
 
         match tokio::time::timeout(Duration::from_millis(2000), sender.send_request(req)).await {
             Ok(result) => match result {
-                Ok(response) => match response.status() {
-                    StatusCode::OK => {
-                        info!("downstream 1 healthy");
-                        Ok(Status::Healthy)
-                    }
-                    _ => {
-                        info!("downstream 1 unhealthy");
-                        Ok(Status::Unhealthy)
+                Ok(response) => {
+                    let status: StatusCode = response.status();
+                    match status {
+                        StatusCode::OK => {
+                            info!("downstream 1 healthy");
+                            Ok(Status::Healthy)
+                        }
+                        status => {
+                            info!("downstream 1 unhealthy");
+                            Ok(Status::Unhealthy(String::from(format!("{}: ", status))))
+                        }
                     }
                 },
-                Err(e) => Err(Box::from(format!("Network error: {:?}", e))),
+                Err(e) => Ok(Status::Unhealthy(String::from(format!("{}", e)))),
             },
-            Err(_) => Err(Box::from("Timeout: no response in 2 seconds.")),
+            Err(e) => Ok(Status::Unhealthy(String::from(format!("{}", e)))),
         }
     }
 }

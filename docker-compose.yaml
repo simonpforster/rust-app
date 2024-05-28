@@ -7,7 +7,6 @@ services:
     build:
       context: .
       dockerfile: service/Dockerfile
-    image: localhost/service:latest
     environment:
       - ENVIRONMENT=docker
     ports:

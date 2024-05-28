@@ -25,17 +25,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // init clients
     let url: Uri = http::Uri::from_str(&config.downstream_one.url).unwrap();
-    let downstream_one_client: DownstreamOneClient = DownstreamOneClient { url: url };
+    let downstream_one_client: DownstreamOneClient = DownstreamOneClient { name: String::from("downstream_one"),  url: url.clone() };
+    let downstream_one_client_dupe: DownstreamOneClient = DownstreamOneClient { name: String::from("downstream_one_dupe"),  url: url.clone() };
 
     let boxed_client: &DownstreamOneClient =
         Box::leak(Box::new(downstream_one_client)) as &'static _;
 
-    let vec: Vec<Box<&dyn Healthcheck>> = vec![Box::new(boxed_client)];
+    let boxed_client_dupe: &DownstreamOneClient =
+        Box::leak(Box::new(downstream_one_client_dupe)) as &'static _;
+
+
+    let vec: Vec<Box<&dyn Healthcheck>> = vec![Box::new(boxed_client), Box::new(boxed_client_dupe)];
     // init healthcheck service
 
     let healthcheck_service: HealthcheckService = HealthcheckService { clients: vec };
 
-    let boxed_check = Box::leak(Box::new(healthcheck_service)) as &'static _;
+    let boxed_check: &HealthcheckService = Box::leak(Box::new(healthcheck_service)) as &'static _;
 
     // init http server
     let address1: SocketAddr =

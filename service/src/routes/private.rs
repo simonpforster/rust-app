@@ -1,4 +1,3 @@
-use crate::clients::healthcheck::Status;
 use crate::router::ResponseResult;
 use crate::routes::utils;
 use crate::services::healthcheck_service::HealthcheckService;
@@ -15,18 +14,14 @@ pub async fn healthcheck(healthcheck_service: &'static HealthcheckService) -> Re
 
     let result = healthcheck_service.check_all().await;
 
+    
+
     match result {
-        Ok(Status::Healthy) => {
+        Ok(a) => {
+            let json = serde_json::to_string(&a).unwrap();
             let res = Response::builder()
                 .status(200)
-                .body(utils::full("text good"))
-                .unwrap();
-            Ok(res)
-        }
-        Ok(Status::Unhealthy) => {
-            let res = Response::builder()
-                .status(503)
-                .body(utils::full("text bad"))
+                .body(utils::full(json))
                 .unwrap();
             Ok(res)
         }
