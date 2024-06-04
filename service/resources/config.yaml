@@ -7,3 +7,9 @@ server:
 
 downstream-one:
   url: "http://localhost:8081/private/status"
+
+notion-client:
+  url: "https://api.notion.com/"
+  path: "v1/databases/"
+  notion-version: "Notion-Version: 2022-06-28"
+  api-key: ""

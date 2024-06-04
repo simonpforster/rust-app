@@ -13,12 +13,10 @@ pub async fn healthcheck(healthcheck_service: &'static HealthcheckService) -> Re
     info!("Healthcheck polled");
 
     let result = healthcheck_service.check_all().await;
-
     
-
     match result {
         Ok(a) => {
-            let json = serde_json::to_string(&a).unwrap();
+            let json = serde_json::to_string_pretty(&a).unwrap();
             let res = Response::builder()
                 .status(200)
                 .body(utils::full(json))

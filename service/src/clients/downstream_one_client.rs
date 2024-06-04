@@ -1,4 +1,4 @@
-use crate::clients::healthcheck::{Healthcheck, Result, Status};
+use crate::clients::{Healthcheck, Result, DependencyStatus};
 use async_trait::async_trait;
 use bytes::Bytes;
 use http_body_util::Empty;
@@ -19,7 +19,7 @@ impl Healthcheck for DownstreamOneClient {
 
     fn get_name(&self) -> &str { &self.name }
         
-    async fn healthcheck(&self) -> Result<Status> {
+    async fn healthcheck(&self) -> Result<DependencyStatus> {
         let host = &self.url.host().expect("uri has no host");
         let port = &self.url.port_u16().unwrap_or(80);
         let addr = format!("{}:{}", host, port);
@@ -49,17 +49,17 @@ impl Healthcheck for DownstreamOneClient {
                     match status {
                         StatusCode::OK => {
                             info!("downstream 1 healthy");
-                            Ok(Status::Healthy)
+                            Ok(DependencyStatus::Healthy)
                         }
                         status => {
                             info!("downstream 1 unhealthy");
-                            Ok(Status::Unhealthy(String::from(format!("{}: ", status))))
+                            Ok(DependencyStatus::Unhealthy(String::from(format!("{}: ", status))))
                         }
                     }
                 },
-                Err(e) => Ok(Status::Unhealthy(String::from(format!("{}", e)))),
+                Err(e) => Ok(DependencyStatus::Unhealthy(String::from(format!("{}", e)))),
             },
-            Err(e) => Ok(Status::Unhealthy(String::from(format!("{}", e)))),
+            Err(e) => Ok(DependencyStatus::Unhealthy(String::from(format!("{}", e)))),
         }
     }
 }

@@ -1,4 +1,5 @@
-use crate::clients::healthcheck::{Healthcheck, Result, Status};
+use std::collections::HashMap;
+use crate::clients::{Healthcheck, Result, DependencyStatus};
 use log::error;
 use tokio::task::JoinSet;
 
@@ -8,8 +9,8 @@ pub struct HealthcheckService {
 }
 
 impl HealthcheckService {
-    pub async fn check_all(&'static self) -> Result<Vec<(String, String)>> {
-        let mut set: JoinSet<(String, Result<Status>)> = JoinSet::new();
+    pub async fn check_all(&'static self) -> Result<HashMap<String, DependencyStatus>> {
+        let mut set: JoinSet<(String, Result<DependencyStatus>)> = JoinSet::new();
 
         for client in &self.clients {
             set.spawn(async move { 
@@ -17,22 +18,22 @@ impl HealthcheckService {
              });
         }
 
-        let mut data: Vec<(String, String)> = Vec::new();
-
+        let mut data: HashMap<String, DependencyStatus> = HashMap::new();
+        
         while let Some(res) = set.join_next().await {
             match res {
-                Ok((name, Ok(Status::Healthy))) => {
-                    data.insert(0, (name, String::from("OK")));
+                Ok((name, Ok(DependencyStatus::Healthy))) => {
+                    data.insert(name, DependencyStatus::Healthy);
                 }
-                Ok((name, Ok(Status::Unhealthy(e)))) => {
-                    data.insert(0, (name, e));
-                }
-                Err(e) => {
-                    error!("JoinError: {}", e);
+                Ok((name, Ok(DependencyStatus::Unhealthy(e)))) => {
+                    data.insert(name, DependencyStatus::Unhealthy(e));
                 }
                 Ok((name, Err(e))) => {
                     error!("Some Error: {}", e);
-                    data.insert(0, (name, e.to_string()));
+                    data.insert(name, DependencyStatus::Unhealthy(e.to_string()));
+                }
+                Err(e) => { // TODO I dont like the way we handle this
+                    error!("JoinError: {}", e);
                 }
             }
         }

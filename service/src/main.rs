@@ -6,7 +6,7 @@ use log4rs::config::{Appender, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::{Config, Handle};
 use service::clients::downstream_one_client::DownstreamOneClient;
-use service::clients::healthcheck::Healthcheck;
+use service::clients::Healthcheck;
 use service::config::application_config::{ApplicationConfig, LoggerConfig};
 use service::services::healthcheck_service::HealthcheckService;
 use service::startup;
