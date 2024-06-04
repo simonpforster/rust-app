@@ -5,8 +5,9 @@ use std::fmt;
 #[serde(rename_all = "kebab-case")]
 pub struct ApplicationConfig {
     pub logging: LoggerConfig,
-    pub downstream_one: DownstreamOneConfig,
     pub server: ServerConfig,
+    pub downstream_one: DownstreamOneConfig,
+    pub notion_client: NotionClientConfig,
 }
 
 impl PartialEq for ApplicationConfig {
@@ -14,16 +15,13 @@ impl PartialEq for ApplicationConfig {
         (self.logging == other.logging)
             & (self.server == other.server)
             & (self.downstream_one == other.downstream_one)
+            & (self.notion_client == other.notion_client)
     }
 }
 
 impl fmt::Display for ApplicationConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}\n{}\n{}\n",
-            self.logging, self.server, self.downstream_one
-        )
+        write!(f, "{}\n{}\n{}\n{}\n", self.logging, self.server, self.downstream_one, self.notion_client)
     }
 }
 
@@ -36,17 +34,14 @@ pub struct LoggerConfig {
 
 impl PartialEq for LoggerConfig {
     fn eq(&self, other: &Self) -> bool {
-        (self.log_level == other.log_level) & (self.pattern == other.pattern)
+        (self.log_level == other.log_level)
+            & (self.pattern == other.pattern)
     }
 }
 
 impl fmt::Display for LoggerConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "logging:\n  log-level: {} \n  pattern: {}\n",
-            self.log_level, self.pattern
-        )
+        write!(f, "logging:\n  log-level: {} \n  pattern: {}\n", self.log_level, self.pattern)
     }
 }
 
@@ -57,9 +52,7 @@ pub struct ServerConfig {
 }
 
 impl PartialEq for ServerConfig {
-    fn eq(&self, other: &Self) -> bool {
-        self.port == other.port
-    }
+    fn eq(&self, other: &Self) -> bool { self.port == other.port }
 }
 
 impl fmt::Display for ServerConfig {
@@ -86,14 +79,37 @@ impl fmt::Display for DownstreamOneConfig {
     }
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct NotionClientConfig {
+    pub url: String,
+    pub path: String,
+    pub notion_version: String,
+    pub api_key: String,
+}
+
+impl PartialEq for NotionClientConfig {
+    fn eq(&self, other: &Self) -> bool {
+        (self.url == other.url)
+            & (self.path == other.path)
+            & (self.notion_version == other.notion_version)
+            & (self.api_key == other.api_key)
+    }
+}
+
+impl fmt::Display for NotionClientConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "notion_client:\n  url: {}\n  path: {}\n  notion_version: {}\n", self.url, self.path, self.notion_version)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::config::application_config::{DownstreamOneConfig, LoggerConfig, ServerConfig};
 
     #[test]
-    fn test_app_conf_struct() {
-        // TODO needs refining of what needs to be tested
+    fn test_app_conf_struct() { // TODO needs refining of what needs to be tested
         let test_config_str: &str = "
             logging:
               log-level: info
@@ -103,7 +119,13 @@ mod tests {
               port: 8080
 
             downstream-one:
-              url: \"localhost:8081\"\
+              url: \"localhost:8081\"
+
+            notion-client:
+              url: \"www.notion.com/\"
+              path: \"path/to\"
+              notion-version: \"v1\"
+              api-key: \"a key\"
             ";
         let parsed_config: ApplicationConfig = serde_yaml::from_str(test_config_str).unwrap();
 
@@ -112,10 +134,14 @@ mod tests {
                 log_level: "info".to_string(),
                 pattern: "{d} {l} - {m}{n}".to_string(),
             },
-            downstream_one: DownstreamOneConfig {
-                url: "localhost:8081".to_string(),
-            },
             server: ServerConfig { port: 8080 },
+            downstream_one: DownstreamOneConfig { url: "localhost:8081".to_string() },
+            notion_client: NotionClientConfig {
+                url: "www.notion.com/".to_string(),
+                path: "path/to".to_string(),
+                api_key: "a key".to_string(),
+                notion_version: "v1".to_string(),
+            },
         };
 
         assert_eq!(parsed_config, test_against)
