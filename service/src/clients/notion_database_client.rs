@@ -13,8 +13,8 @@ pub fn notion_http_client(api_key: &str, notion_version: &str) -> reqwest::Resul
 
     let auth_header = header::HeaderValue::from_str(api_key).unwrap();
 
-    let notion_version: &'static str = "notion-version";
-    let notion_version_header_name = header::HeaderName::from_static(notion_version);
+    static NOTION_VERSION: &'static str = "notion-version";
+    let notion_version_header_name = header::HeaderName::from_static(NOTION_VERSION);
     let notion_version_header_value = header::HeaderValue::from_str(notion_version).unwrap();
 
     headers.insert(AUTHORIZATION, auth_header);
