@@ -89,7 +89,7 @@ impl fmt::Display for NotionClientConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::application_config::{DownstreamOneConfig, LoggerConfig, ServerConfig};
+    use crate::config::application_config::{LoggerConfig, ServerConfig};
 
     #[test]
     fn test_app_conf_struct() { // TODO needs refining of what needs to be tested
@@ -100,9 +100,6 @@ mod tests {
 
             server:
               port: 8080
-
-            downstream-one:
-              url: \"localhost:8081\"
 
             notion-client:
               url: \"www.notion.com/\"
@@ -119,7 +116,6 @@ mod tests {
                 pattern: "{d} {l} - {m}{n}".to_string(),
             },
             server: ServerConfig { port: 8080 },
-            downstream_one: DownstreamOneConfig { url: "localhost:8081".to_string() },
             notion_client: NotionClientConfig {
                 url: "www.notion.com/".to_string(),
                 path: "path/to".to_string(),
