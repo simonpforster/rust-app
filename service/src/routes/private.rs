@@ -1,10 +1,8 @@
-use std::collections::HashMap;
 use crate::router::ResponseResult;
 use crate::routes::utils;
 use crate::services::healthcheck_service::HealthcheckService;
 use hyper::Response;
 use log::info;
-use crate::clients::DependencyStatus;
 
 pub fn status() -> ResponseResult {
     info!("Status polled");
