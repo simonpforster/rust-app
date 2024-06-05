@@ -1,11 +1,9 @@
 use configloader::Configuration;
-use hyper::{http, Uri};
 use log::{info, LevelFilter, SetLoggerError};
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::config::{Appender, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::{Config, Handle};
-use service::clients::downstream_one_client::DownstreamOneClient;
 use service::clients::Healthcheck;
 use service::config::application_config::{ApplicationConfig, LoggerConfig};
 use service::services::healthcheck_service::HealthcheckService;
@@ -13,6 +11,7 @@ use service::startup;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::str::FromStr;
 use tokio::net::TcpListener;
+use service::clients::notion_database_client::{notion_http_client, NotionDatabaseClient};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -24,20 +23,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     info!("Loading config: \n{}", config);
 
     // init clients
-    let url: Uri = http::Uri::from_str(&config.downstream_one.url).unwrap();
-    let downstream_one_client: DownstreamOneClient = DownstreamOneClient { name: String::from("downstream_one"),  url: url.clone() };
-    let downstream_one_client_dupe: DownstreamOneClient = DownstreamOneClient { name: String::from("downstream_one_dupe"),  url: url.clone() };
+    let url: String = format!("{}{}", &config.notion_client.url, &config.notion_client.path);
+    let notion_client: NotionDatabaseClient = NotionDatabaseClient {
+        name: String::from("notion_database_client_1"),
+        url,
+        database_id: config.notion_client.database_id,
+        http_client: notion_http_client(&config.notion_client.api_key, &config.notion_client.notion_version)?,
+    };
 
-    let boxed_client: &DownstreamOneClient =
-        Box::leak(Box::new(downstream_one_client)) as &'static _;
+    let boxed_notion_client: &NotionDatabaseClient = Box::leak(Box::new(notion_client)) as &'static _;
 
-    let boxed_client_dupe: &DownstreamOneClient =
-        Box::leak(Box::new(downstream_one_client_dupe)) as &'static _;
+    let vec: Vec<Box<&dyn Healthcheck>> = vec![
+        Box::new(boxed_notion_client),
+    ];
 
-
-    let vec: Vec<Box<&dyn Healthcheck>> = vec![Box::new(boxed_client), Box::new(boxed_client_dupe)];
     // init healthcheck service
-
     let healthcheck_service: HealthcheckService = HealthcheckService { clients: vec };
 
     let boxed_check: &HealthcheckService = Box::leak(Box::new(healthcheck_service)) as &'static _;

@@ -6,7 +6,6 @@ use std::fmt;
 pub struct ApplicationConfig {
     pub logging: LoggerConfig,
     pub server: ServerConfig,
-    pub downstream_one: DownstreamOneConfig,
     pub notion_client: NotionClientConfig,
 }
 
@@ -14,14 +13,13 @@ impl PartialEq for ApplicationConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.logging == other.logging)
             & (self.server == other.server)
-            & (self.downstream_one == other.downstream_one)
             & (self.notion_client == other.notion_client)
     }
 }
 
 impl fmt::Display for ApplicationConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}\n{}\n{}\n{}\n", self.logging, self.server, self.downstream_one, self.notion_client)
+        write!(f, "{}\n{}\n{}\n", self.logging, self.server, self.notion_client)
     }
 }
 
@@ -63,27 +61,10 @@ impl fmt::Display for ServerConfig {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "kebab-case")]
-pub struct DownstreamOneConfig {
-    pub url: String,
-}
-
-impl PartialEq for DownstreamOneConfig {
-    fn eq(&self, other: &Self) -> bool {
-        self.url == other.url
-    }
-}
-
-impl fmt::Display for DownstreamOneConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "downstream_one:\n  url: {}\n", self.url)
-    }
-}
-
-#[derive(Deserialize, Debug)]
-#[serde(rename_all = "kebab-case")]
 pub struct NotionClientConfig {
     pub url: String,
     pub path: String,
+    pub database_id: String,
     pub notion_version: String,
     pub api_key: String,
 }
@@ -92,6 +73,7 @@ impl PartialEq for NotionClientConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.url == other.url)
             & (self.path == other.path)
+            & (self.database_id == other.database_id)
             & (self.notion_version == other.notion_version)
             & (self.api_key == other.api_key)
     }
@@ -99,7 +81,8 @@ impl PartialEq for NotionClientConfig {
 
 impl fmt::Display for NotionClientConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "notion_client:\n  url: {}\n  path: {}\n  notion_version: {}\n", self.url, self.path, self.notion_version)
+        write!(f, "notion_client:\n  url: {}\n  path: {}\n  database_id: {}\n  notion_version: {}\n",
+               self.url, self.path, self.database_id, self.notion_version)
     }
 }
 
@@ -124,6 +107,7 @@ mod tests {
             notion-client:
               url: \"www.notion.com/\"
               path: \"path/to\"
+              database-id: \"1234\"
               notion-version: \"v1\"
               api-key: \"a key\"
             ";
@@ -139,6 +123,7 @@ mod tests {
             notion_client: NotionClientConfig {
                 url: "www.notion.com/".to_string(),
                 path: "path/to".to_string(),
+                database_id: "1234".to_string(),
                 api_key: "a key".to_string(),
                 notion_version: "v1".to_string(),
             },

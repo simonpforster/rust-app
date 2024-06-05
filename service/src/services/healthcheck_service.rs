@@ -3,7 +3,6 @@ use crate::clients::{Healthcheck, Result, DependencyStatus};
 use log::error;
 use tokio::task::JoinSet;
 
-#[derive(Clone)]
 pub struct HealthcheckService {
     pub clients: Vec<Box<&'static dyn Healthcheck>>,
 }
@@ -22,22 +21,13 @@ impl HealthcheckService {
         
         while let Some(res) = set.join_next().await {
             match res {
-                Ok((name, Ok(DependencyStatus::Healthy))) => {
-                    data.insert(name, DependencyStatus::Healthy);
-                }
-                Ok((name, Ok(DependencyStatus::Unhealthy(e)))) => {
-                    data.insert(name, DependencyStatus::Unhealthy(e));
-                }
-                Ok((name, Err(e))) => {
-                    error!("Some Error: {}", e);
-                    data.insert(name, DependencyStatus::Unhealthy(e.to_string()));
-                }
-                Err(e) => { // TODO I dont like the way we handle this
-                    error!("JoinError: {}", e);
-                }
+                Ok((name, result)) => match result {
+                    Ok(d) => { data.insert(name, d); }
+                    Err(e) => { data.insert(name, DependencyStatus::Unhealthy(e.to_string())); }
+                },
+                Err(e) => error!("JoinError: {}", e),
             }
         }
-
         Ok(data)
     }
 }

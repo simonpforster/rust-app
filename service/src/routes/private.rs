@@ -1,8 +1,10 @@
+use std::collections::HashMap;
 use crate::router::ResponseResult;
 use crate::routes::utils;
 use crate::services::healthcheck_service::HealthcheckService;
 use hyper::Response;
 use log::info;
+use crate::clients::DependencyStatus;
 
 pub fn status() -> ResponseResult {
     info!("Status polled");
@@ -15,8 +17,8 @@ pub async fn healthcheck(healthcheck_service: &'static HealthcheckService) -> Re
     let result = healthcheck_service.check_all().await;
     
     match result {
-        Ok(a) => {
-            let json = serde_json::to_string_pretty(&a).unwrap();
+        Ok(healthcheck_result) => {
+            let json = serde_json::to_string_pretty(&healthcheck_result).unwrap();
             let res = Response::builder()
                 .status(200)
                 .body(utils::full(json))

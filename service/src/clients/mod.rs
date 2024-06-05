@@ -1,9 +1,7 @@
-pub mod client;
-pub mod downstream_one_client;
-pub mod notion_client;
+pub mod notion_database_client;
 
 use async_trait::async_trait;
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -13,8 +11,16 @@ pub trait Healthcheck: Send + Sync {
     async fn healthcheck(&self) -> Result<DependencyStatus>;
 }
 
-#[derive(Serialize)]
 pub enum DependencyStatus {
     Healthy,
     Unhealthy(String),
+}
+
+impl Serialize for DependencyStatus {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> where S: Serializer {
+        serializer.serialize_str(match &self {
+            DependencyStatus::Healthy => "OK",
+            DependencyStatus::Unhealthy(e) =>  e
+        })
+    }
 }
