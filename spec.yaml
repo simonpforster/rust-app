@@ -18,3 +18,12 @@ paths:
             application/plain:
               schema:
                 type: string
+  /private/healthcheck:
+    get:
+      summary: Checks the health of the application and it's downstreams.
+      description: Body contains status of downstreams.
+      responses:
+        '200': # status code
+          description: OK
+          content:
+            application/json:

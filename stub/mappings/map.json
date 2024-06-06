@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/private/status"
+  },
+
+  "response": {
+    "status": 200,
+    "body": "OK",
+    "headers": {
+      "Content-Type": "text/plain"
+    }
+  }
+}
