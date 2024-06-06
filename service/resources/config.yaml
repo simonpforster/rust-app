@@ -10,6 +10,6 @@ notion:
     url: "https://api.notion.com/"
     notion-version: "2022-06-28"
     api-key: ""
-  db-service:
+  db:
     path: "v1/databases/"
     database-id: "abde80ee3af649d58fdbd238c3b6a01b"
