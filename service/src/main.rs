@@ -10,31 +10,57 @@ use service::services::healthcheck_service::HealthcheckService;
 use service::startup;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::str::FromStr;
+use std::time::Duration;
+use lazy_static::lazy_static;
+use opentelemetry::{KeyValue};
+use opentelemetry::trace::TraceError;
 use tokio::net::TcpListener;
-use service::clients::notion_database_client::{notion_http_client, NotionDatabaseClient};
+use service::clients::notion::{notion_client, NotionClient};
+use opentelemetry_otlp::WithExportConfig;
+use opentelemetry_sdk::{Resource, trace};
+use opentelemetry_sdk::trace::{RandomIdGenerator, Sampler, Tracer};
+use tracing_opentelemetry::OpenTelemetryLayer;
+use tracing_subscriber::layer::{Layered, SubscriberExt};
+use tracing_subscriber::Registry;
+use service::clients::notion::notion_db_client::{notion_db_client, NotionDBClient};
+
+lazy_static! {
+    //load config
+    static ref CONFIG: ApplicationConfig = ApplicationConfig::load(&module_path!().to_string()).unwrap();
+    
+    //define clients
+    static ref NOTION_CLIENT: NotionClient = notion_client(
+        &CONFIG.notion.client,
+    ).unwrap();
+    
+    static ref NOTION_DB_CLIENT: NotionDBClient = notion_db_client(
+        "notion_db_client".to_string(),
+        &NOTION_CLIENT,
+        &CONFIG.notion.db
+    );
+    
+    //define services
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    // init config
-    let config: ApplicationConfig = ApplicationConfig::load(&module_path!().to_string()).unwrap();
+    //init logger
+    logger_setup(&CONFIG.logging)?;
 
-    logger_setup(&config.logging).unwrap();
+    //init tracing
+    let tracer = tracing_setup()?;
 
-    info!("Loading config: \n{}", config);
+    let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
+
+    let subscriber: Layered<OpenTelemetryLayer<Registry, Tracer>, Registry, Registry> = Registry::default().with(telemetry);
+
+    tracing::subscriber::set_global_default(subscriber)?;
 
     // init clients
-    let url: String = format!("{}{}", &config.notion_client.url, &config.notion_client.path);
-    let notion_client: NotionDatabaseClient = NotionDatabaseClient {
-        name: String::from("notion_database_client_1"),
-        url,
-        database_id: config.notion_client.database_id,
-        http_client: notion_http_client(&config.notion_client.api_key, &config.notion_client.notion_version)?,
-    };
-
-    let boxed_notion_client: &NotionDatabaseClient = Box::leak(Box::new(notion_client)) as &'static _;
+    let notion_db_service_ref: &NotionDBClient = &NOTION_DB_CLIENT;
 
     let vec: Vec<Box<&dyn Healthcheck>> = vec![
-        Box::new(boxed_notion_client),
+        Box::new(notion_db_service_ref),
     ];
 
     // init healthcheck service
@@ -44,7 +70,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // init http server
     let address1: SocketAddr =
-        SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), config.server.port);
+        SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), CONFIG.server.port);
 
     let listener = TcpListener::bind(address1).await?;
     startup::run(listener, boxed_check)
@@ -64,11 +90,28 @@ fn logger_setup(logger_config: &LoggerConfig) -> Result<Handle, SetLoggerError> 
         .encoder(Box::new(PatternEncoder::new(&logger_config.pattern)))
         .build();
 
-    let config = Config::builder()
+    let log_conf = Config::builder()
         .appender(Appender::builder().build("stdout", Box::new(stdout)))
         .logger(Logger::builder().build("app::backend::db", level))
         .build(Root::builder().appender("stdout").build(level))
         .unwrap();
 
-    log4rs::init_config(config)
+    log4rs::init_config(log_conf)
+}
+
+fn tracing_setup() -> Result<Tracer, TraceError> {
+    opentelemetry_otlp::new_pipeline()
+        .tracing()
+        .with_exporter(opentelemetry_otlp::new_exporter()
+            .tonic()
+            .with_endpoint("http://localhost:4317")
+            .with_timeout(Duration::from_secs(3)))
+        .with_trace_config(trace::config()
+            .with_sampler(Sampler::AlwaysOn)
+            .with_id_generator(RandomIdGenerator::default())
+            .with_max_events_per_span(64)
+            .with_max_attributes_per_span(16)
+            .with_max_events_per_span(16)
+            .with_resource(Resource::new(vec![KeyValue::new("service.name", "rust-app-service")])))
+        .install_batch(opentelemetry_sdk::runtime::Tokio)
 }

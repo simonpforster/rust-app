@@ -1,12 +1,14 @@
-pub mod notion_database_client;
-
+use std::fmt::Debug;
 use async_trait::async_trait;
 use serde::{Serialize, Serializer};
+
+mod middleware;
+pub mod notion;
 
 pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 #[async_trait]
-pub trait Healthcheck: Send + Sync {
+pub trait Healthcheck: Send + Sync + Debug {
     fn get_name(&self) -> &str;
     async fn healthcheck(&self) -> Result<DependencyStatus>;
 }

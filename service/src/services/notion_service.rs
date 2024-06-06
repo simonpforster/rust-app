@@ -1,13 +1,12 @@
-use crate::clients::notion_database_client::NotionDatabaseClient;
+use crate::clients::notion::notion_db_client::NotionDBClient;
 
-pub struct NotionService {
-    pub notion_db_client: NotionDatabaseClient
+pub fn notion_db_service(notion_db_client: &'static NotionDBClient) -> NotionDBService {
+    NotionDBService { 
+        notion_db_client,
+    }
 }
 
-// impl NotionService {
-//     
-//     pub fn getTasks() -> Result<> {
-//         todo!()
-//     }
-//     
-// }
+#[derive(Debug)]
+pub struct NotionDBService {
+   notion_db_client: &'static NotionDBClient,
+}

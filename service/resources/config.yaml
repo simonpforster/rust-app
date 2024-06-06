@@ -5,9 +5,11 @@ logging:
 server:
   port: 8080
 
-notion-client:
-  url: "https://api.notion.com/"
-  path: "v1/databases/"
-  database-id: "abde80ee3af649d58fdbd238c3b6a01b"
-  notion-version: "2022-06-28"
-  api-key: ""
+notion:
+  client:
+    url: "https://api.notion.com/"
+    notion-version: "2022-06-28"
+    api-key: ""
+  db-service:
+    path: "v1/databases/"
+    database-id: "abde80ee3af649d58fdbd238c3b6a01b"

@@ -1,25 +1,18 @@
 use serde::Deserialize;
-use std::fmt;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "kebab-case")]
 pub struct ApplicationConfig {
     pub logging: LoggerConfig,
     pub server: ServerConfig,
-    pub notion_client: NotionClientConfig,
+    pub notion: NotionConfig,
 }
 
 impl PartialEq for ApplicationConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.logging == other.logging)
             & (self.server == other.server)
-            & (self.notion_client == other.notion_client)
-    }
-}
-
-impl fmt::Display for ApplicationConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}\n{}\n{}\n", self.logging, self.server, self.notion_client)
+            & (self.notion == other.notion)
     }
 }
 
@@ -37,12 +30,6 @@ impl PartialEq for LoggerConfig {
     }
 }
 
-impl fmt::Display for LoggerConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "logging:\n  log-level: {} \n  pattern: {}\n", self.log_level, self.pattern)
-    }
-}
-
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "kebab-case")]
 pub struct ServerConfig {
@@ -53,9 +40,17 @@ impl PartialEq for ServerConfig {
     fn eq(&self, other: &Self) -> bool { self.port == other.port }
 }
 
-impl fmt::Display for ServerConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "server:\n  port: {}\n", self.port)
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct NotionConfig {
+    pub client: NotionClientConfig,
+    pub db: NotionDBServiceConfig,
+}
+
+impl PartialEq for NotionConfig {
+    fn eq(&self, other: &Self) -> bool {
+        (self.client == other.client)
+            & (self.db == other.db)
     }
 }
 
@@ -63,8 +58,6 @@ impl fmt::Display for ServerConfig {
 #[serde(rename_all = "kebab-case")]
 pub struct NotionClientConfig {
     pub url: String,
-    pub path: String,
-    pub database_id: String,
     pub notion_version: String,
     pub api_key: String,
 }
@@ -72,24 +65,30 @@ pub struct NotionClientConfig {
 impl PartialEq for NotionClientConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.url == other.url)
-            & (self.path == other.path)
-            & (self.database_id == other.database_id)
             & (self.notion_version == other.notion_version)
             & (self.api_key == other.api_key)
     }
 }
 
-impl fmt::Display for NotionClientConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "notion_client:\n  url: {}\n  path: {}\n  database_id: {}\n  notion_version: {}\n",
-               self.url, self.path, self.database_id, self.notion_version)
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "kebab-case")]
+pub struct NotionDBServiceConfig {
+    pub path: String,
+    pub database_id: String,
+}
+
+impl PartialEq for NotionDBServiceConfig {
+    fn eq(&self, other: &Self) -> bool {
+        (self.path == other.path)
+            & (self.database_id == other.database_id)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::config::application_config::{LoggerConfig, ServerConfig};
+
+    use super::*;
 
     #[test]
     fn test_app_conf_struct() { // TODO needs refining of what needs to be tested
@@ -101,12 +100,14 @@ mod tests {
             server:
               port: 8080
 
-            notion-client:
-              url: \"www.notion.com/\"
-              path: \"path/to\"
-              database-id: \"1234\"
-              notion-version: \"v1\"
-              api-key: \"a key\"
+            notion:
+              client:
+                url: \"www.notion.com/\"
+                notion-version: \"v1\"
+                api-key: \"a key\"
+              db:
+                path: \"path/to\"
+                database-id: \"1234\"
             ";
         let parsed_config: ApplicationConfig = serde_yaml::from_str(test_config_str).unwrap();
 
@@ -116,12 +117,16 @@ mod tests {
                 pattern: "{d} {l} - {m}{n}".to_string(),
             },
             server: ServerConfig { port: 8080 },
-            notion_client: NotionClientConfig {
-                url: "www.notion.com/".to_string(),
-                path: "path/to".to_string(),
-                database_id: "1234".to_string(),
-                api_key: "a key".to_string(),
-                notion_version: "v1".to_string(),
+            notion: NotionConfig {
+                client: NotionClientConfig {
+                    url: "www.notion.com/".to_string(),
+                    api_key: "a key".to_string(),
+                    notion_version: "v1".to_string(),
+                },
+                db: NotionDBServiceConfig {
+                    path: "path/to".to_string(),
+                    database_id: "1234".to_string(),
+                },
             },
         };
 

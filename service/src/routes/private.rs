@@ -3,12 +3,14 @@ use crate::routes::utils;
 use crate::services::healthcheck_service::HealthcheckService;
 use hyper::Response;
 use log::info;
+use tracing::instrument;
 
 pub fn status() -> ResponseResult {
     info!("Status polled");
     Ok(Response::new(utils::full("OK")))
 }
 
+#[instrument(name = "healthcheck_route")]
 pub async fn healthcheck(healthcheck_service: &'static HealthcheckService) -> ResponseResult {
     info!("Healthcheck polled");
 
