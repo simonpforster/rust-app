@@ -3,14 +3,14 @@ name: "rust-app"
 
 services:
 
-#  service:
-#    build:
-#      context: .
-#      dockerfile: service/Dockerfile
-#    environment:
-#      - ENVIRONMENT=docker
-#    ports:
-#      - "8080:8080"
+  service:
+    build:
+      context: .
+      dockerfile: service/Dockerfile
+    environment:
+      - ENVIRONMENT=docker_stubbed
+    ports:
+      - "8080:8080"
 
   stub:
     build: stub/.

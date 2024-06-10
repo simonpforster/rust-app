@@ -4,6 +4,7 @@ use crate::services::healthcheck_service::HealthcheckService;
 use hyper::Response;
 use log::info;
 use tracing::instrument;
+use crate::clients::DependencyStatus;
 
 pub fn status() -> ResponseResult {
     info!("Status polled");
@@ -18,9 +19,23 @@ pub async fn healthcheck(healthcheck_service: &'static HealthcheckService) -> Re
     
     match result {
         Ok(healthcheck_result) => {
+            let some: bool = healthcheck_result.iter().fold(true, 
+            |a, (_, status)| {
+                    match status {
+                        DependencyStatus::Unhealthy(_) => false,
+                        DependencyStatus::Healthy => a,
+                    }
+                }
+            );
+            
+            let code = match some {
+                true => 200,
+                false => 500,
+            };
+            
             let json = serde_json::to_string_pretty(&healthcheck_result).unwrap();
             let res = Response::builder()
-                .status(200)
+                .status(code)
                 .body(utils::full(json))
                 .unwrap();
             Ok(res)

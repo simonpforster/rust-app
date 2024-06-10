@@ -12,4 +12,4 @@ notion:
     api-key: ""
   db:
     path: "v1/databases/"
-    database-id: "abde80ee3af649d58fdbd238c3b6a01b"
+    database-id: ""

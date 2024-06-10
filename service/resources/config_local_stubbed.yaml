@@ -1,0 +1,6 @@
+notion:
+  client:
+    url: "http://localhost:8081/"
+    api-key: "test_api_key"
+  db:
+    database-id: "test_database_id"

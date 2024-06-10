@@ -23,7 +23,7 @@ hyper = { version = "1.2.0", features = ["full"] }
 hyper-util = { version = "0.1.5", features = ["full"] }
 http-body-util = "0.1.0"
 # HTTP CLIENT
-reqwest = "0.12.4"
+reqwest = { version = "0.12.4", default-features = false, features = ["rustls-tls"] }
 
 # TRACING
 tracing = "0.1"
