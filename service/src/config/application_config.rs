@@ -82,7 +82,7 @@ mod tests {
                 id: \"1234\"
 
             monitoring:
-              otlp-exporter:
+              exporter:
                 url: \"tempo\"
             ";
         let parsed_config: ApplicationConfig = serde_yaml::from_str(test_config_str).unwrap();
