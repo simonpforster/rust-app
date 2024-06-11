@@ -31,6 +31,9 @@ jobs:
         with:
           images: simonpforster/rust-app
 
+      - name: Date
+        run: echo "TIME=${{ github.event.repository.updated_at}}" | sed 's/:/./g' >> $GITHUB_ENV
+
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
@@ -38,7 +41,7 @@ jobs:
           context: .
           file: ./service/Dockerfile
           push: true
-          tags: "${{ steps.meta.outputs.tags }}-${{ github.event.repository.updated_at}}"
+          tags: "${{ steps.meta.outputs.tags }}-${{ env.TIME }}"
           labels: ${{ steps.meta.outputs.labels }}
 
 
