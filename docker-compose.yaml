@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: service/Dockerfile
     environment:
-      - ENVIRONMENT=docker_stubbed
+      - ENVIRONMENT=docker
     ports:
       - "8080:8080"
 
@@ -28,6 +28,8 @@ services:
       - "/var/tempo"
     volumes:
       - ./tempo/tempo-data:/var/tempo
+    profiles:
+      - init
 
   tempo:
     image: *tempoImage
@@ -67,3 +69,5 @@ services:
       - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor traceQLStreaming metricsSummary
     ports:
       - "3000:3000"
+
+volumes:

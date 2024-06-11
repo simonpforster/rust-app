@@ -4,3 +4,7 @@ notion:
     key: "test_api_key"
   db:
     id: "test_database_id"
+
+monitoring:
+  exporter:
+    url: "http://localhost:4317/"

@@ -5,7 +5,7 @@ use log4rs::config::{Appender, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::{Config, Handle};
 use service::clients::Healthcheck;
-use service::config::application_config::{ApplicationConfig, LoggerConfig};
+use service::config::application_config::{ApplicationConfig, LoggerConfig, OtlpExporterConfig};
 use service::services::healthcheck_service::HealthcheckService;
 use service::startup;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
@@ -23,6 +23,7 @@ use tracing_opentelemetry::OpenTelemetryLayer;
 use tracing_subscriber::layer::{Layered, SubscriberExt};
 use tracing_subscriber::Registry;
 use service::clients::notion::notion_db_client::{notion_db_client, NotionDBClient};
+use service::services::notion_service::{notion_db_service, NotionDBService};
 
 lazy_static! {
     //load config
@@ -40,6 +41,9 @@ lazy_static! {
     );
     
     //define services
+    
+    static ref NOTION_DB_SERVICE: NotionDBService = notion_db_service(&NOTION_DB_CLIENT);
+    
 }
 
 #[tokio::main]
@@ -48,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     logger_setup(&CONFIG.logging)?;
 
     //init tracing
-    let tracer = tracing_setup()?;
+    let tracer = tracing_setup(&CONFIG.monitoring.otlp_exporter)?;
 
     let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
 
@@ -73,7 +77,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), CONFIG.server.port);
 
     let listener = TcpListener::bind(address1).await?;
-    startup::run(listener, boxed_check)
+    startup::run(listener, &NOTION_DB_SERVICE, boxed_check)
         .await
         .expect("Unable to start the server");
 
@@ -99,12 +103,12 @@ fn logger_setup(logger_config: &LoggerConfig) -> Result<Handle, SetLoggerError> 
     log4rs::init_config(log_conf)
 }
 
-fn tracing_setup() -> Result<Tracer, TraceError> {
+fn tracing_setup(otlp_exporter_config: &OtlpExporterConfig) -> Result<Tracer, TraceError> {
     opentelemetry_otlp::new_pipeline()
         .tracing()
         .with_exporter(opentelemetry_otlp::new_exporter()
             .tonic()
-            .with_endpoint("http://localhost:4317")
+            .with_endpoint(&otlp_exporter_config.url)
             .with_timeout(Duration::from_secs(3)))
         .with_trace_config(trace::config()
             .with_sampler(Sampler::AlwaysOn)

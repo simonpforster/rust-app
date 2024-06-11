@@ -5,9 +5,11 @@ use hyper::service::service_fn;
 use hyper_util::rt::TokioIo;
 use log::{error, info};
 use tokio::net::TcpListener;
+use crate::services::notion_service::{NotionDBService};
 
 pub async fn run(
     tcp_listener: TcpListener,
+    notion_dbservice: &'static NotionDBService,
     healthcheck_service: &'static HealthcheckService,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     info!(
@@ -25,7 +27,7 @@ pub async fn run(
                 // `service_fn` converts our function in a `Service`
                 .serve_connection(
                     io,
-                    service_fn(|r| router::request_handler(r, &healthcheck_service)),
+                    service_fn(|r| router::request_handler(r, notion_dbservice, healthcheck_service)),
                 )
                 .await
             {

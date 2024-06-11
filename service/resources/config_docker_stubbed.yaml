@@ -3,4 +3,8 @@ notion:
     url: "http://rust-app-stub-1:8080/"
     key: "test_api_key"
   db:
-    database-id: "test_database_id"
+    id: "test_database_id"
+    
+monitoring:
+  otlp-exporter:
+    url: "http://tempo:4317/"

@@ -3,3 +3,7 @@ notion:
     key: ""
   db:
     id: ""
+
+monitoring:
+  exporter:
+    url: "http://tempo:4317/"
