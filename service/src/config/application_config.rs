@@ -47,7 +47,7 @@ pub struct NotionDBServiceConfig {
 #[derive(Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct MonitoringConfig {
-    pub otlp_exporter: OtlpExporterConfig,
+    pub exporter: OtlpExporterConfig,
 }
 
 #[derive(Deserialize, Debug, PartialEq)]

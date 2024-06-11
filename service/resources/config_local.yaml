@@ -4,6 +4,6 @@ notion:
   db:
     id: ""
 
-  monitoring:
-    otlp-exporter:
-      url: "http://localhost:4317/"
+monitoring:
+  exporter:
+    url: "http://localhost:4317/"

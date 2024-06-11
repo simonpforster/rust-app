@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     logger_setup(&CONFIG.logging)?;
 
     //init tracing
-    let tracer = tracing_setup(&CONFIG.monitoring.otlp_exporter)?;
+    let tracer = tracing_setup(&CONFIG.monitoring.exporter)?;
 
     let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
 
