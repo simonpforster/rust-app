@@ -59,14 +59,14 @@ impl PartialEq for NotionConfig {
 pub struct NotionClientConfig {
     pub url: String,
     pub notion_version: String,
-    pub api_key: String,
+    pub key: String,
 }
 
 impl PartialEq for NotionClientConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.url == other.url)
             & (self.notion_version == other.notion_version)
-            & (self.api_key == other.api_key)
+            & (self.key == other.key)
     }
 }
 
@@ -74,13 +74,13 @@ impl PartialEq for NotionClientConfig {
 #[serde(rename_all = "kebab-case")]
 pub struct NotionDBServiceConfig {
     pub path: String,
-    pub database_id: String,
+    pub id: String,
 }
 
 impl PartialEq for NotionDBServiceConfig {
     fn eq(&self, other: &Self) -> bool {
         (self.path == other.path)
-            & (self.database_id == other.database_id)
+            & (self.id == other.id)
     }
 }
 
@@ -104,10 +104,10 @@ mod tests {
               client:
                 url: \"www.notion.com/\"
                 notion-version: \"v1\"
-                api-key: \"a key\"
+                key: \"a key\"
               db:
                 path: \"path/to\"
-                database-id: \"1234\"
+                id: \"1234\"
             ";
         let parsed_config: ApplicationConfig = serde_yaml::from_str(test_config_str).unwrap();
 
@@ -120,12 +120,12 @@ mod tests {
             notion: NotionConfig {
                 client: NotionClientConfig {
                     url: "www.notion.com/".to_string(),
-                    api_key: "a key".to_string(),
+                    key: "a key".to_string(),
                     notion_version: "v1".to_string(),
                 },
                 db: NotionDBServiceConfig {
                     path: "path/to".to_string(),
-                    database_id: "1234".to_string(),
+                    id: "1234".to_string(),
                 },
             },
         };

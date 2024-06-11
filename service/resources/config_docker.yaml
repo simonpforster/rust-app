@@ -1,5 +1,5 @@
 notion:
   client:
-    api-key: ""
+    key: ""
   db:
-    database-id: ""
+    id: ""
