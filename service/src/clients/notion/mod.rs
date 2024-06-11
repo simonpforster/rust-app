@@ -15,7 +15,7 @@ use crate::config::application_config::NotionClientConfig;
 
 pub fn notion_client(notion_client_config: &NotionClientConfig) -> reqwest::Result<NotionClient> {
     let client = Client::builder()
-        .default_headers(notion_headers(&notion_client_config.api_key, &notion_client_config.notion_version))
+        .default_headers(notion_headers(&notion_client_config.key, &notion_client_config.notion_version))
         .timeout(Duration::from_secs(5))
         .build()?;
 

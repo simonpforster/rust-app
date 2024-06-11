@@ -9,7 +9,7 @@ pub fn notion_db_client(name: String, notion_client: &'static NotionClient, noti
     NotionDBClient {
         notion_client,
         name: name.to_string(),
-        database_id: notion_db_config.database_id.to_string(),
+        database_id: notion_db_config.id.to_string(),
         path: notion_db_config.path.to_string(),
     }
 }

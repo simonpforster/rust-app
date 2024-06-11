@@ -23,7 +23,7 @@ where
                 "{}/config_{}.yaml",
                 config_dir, env
             )))
-            .add_source(Environment::default().convert_case(Case::Kebab))
+            .add_source(Environment::default().separator("_"))
             .build()
             .map_err(Error::Load)?
             .try_deserialize()

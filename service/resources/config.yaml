@@ -9,7 +9,7 @@ notion:
   client:
     url: "https://api.notion.com/"
     notion-version: "2022-06-28"
-    api-key: ""
+    key: ""
   db:
     path: "v1/databases/"
-    database-id: ""
+    id: ""
