@@ -9,15 +9,8 @@ pub struct Task {
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct Name {
     r#type: String,
-    title: Vec<TitleEnum>,
+    title: Vec<Title>,
 }
-
-#[derive(Deserialize, Debug, PartialEq)]
-
-pub enum TitleEnum {
-    
-}
-
 
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct Title {
@@ -83,7 +76,7 @@ mod tests {
         let expected_name = "Go to Abuelo".to_string();
 
 
-        assert_eq!(a.Name.r#type, expected_name)
+        assert_eq!(a.Name.title.iter().next().unwrap().plain_text.as_ref().unwrap(), &expected_name)
     }
 
 }
