@@ -3,6 +3,8 @@ name: Publish Docker Image
 on:
   push:
     branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   push_to_registry:
@@ -28,6 +30,10 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: simonpforster/rust-app
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
 
       - name: Date
         run: echo "TIME=${{ github.event.repository.updated_at}}" | sed 's/:/./g' >> $GITHUB_ENV
@@ -39,13 +45,13 @@ jobs:
           context: .
           file: ./service/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: "${{ steps.meta.outputs.tags }}"
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
 
-
-#      - name: Generate artifact attestation
-#        uses: actions/attest-build-provenance@v1
-#        with:
-#          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-#          subject-digest: ${{ steps.push.outputs.digest }}
-#          push-to-registry: true
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
