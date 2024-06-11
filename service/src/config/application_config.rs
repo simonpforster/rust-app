@@ -104,7 +104,7 @@ mod tests {
               client:
                 url: \"www.notion.com/\"
                 notion-version: \"v1\"
-                api-key: \"a key\"
+                key: \"a key\"
               db:
                 path: \"path/to\"
                 id: \"1234\"
