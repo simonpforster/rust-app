@@ -4,6 +4,9 @@ on:
   push:
     branches: [ "master" ]
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
