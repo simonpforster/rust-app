@@ -27,7 +27,7 @@ use service::services::notion_service::{notion_db_service, NotionDBService};
 
 lazy_static! {
     //load config
-    static ref CONFIG: ApplicationConfig = ApplicationConfig::load(&module_path!().to_string()).unwrap();
+    static ref CONFIG: ApplicationConfig = ApplicationConfig::load(&module_path!().to_string(), "RA").unwrap();
     
     //define clients
     static ref NOTION_CLIENT: NotionClient = notion_client(
