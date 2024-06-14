@@ -17,6 +17,7 @@ bytes = "1.6.0"
 serde = { version = "1.0.202", features = ["derive"] }
 serde_yaml = "0.9"
 serde_json = "1.0.117"
+lazy_static = "1.4.0"
 
 # HTTP
 hyper = { version = "1.2.0", features = ["full"] }
@@ -34,4 +35,3 @@ opentelemetry = "0.23.0"
 opentelemetry_sdk = { version = "0.23.0", features = [ "rt-tokio"] }
 opentelemetry-otlp = { version = "*", features = ["grpc-tonic"] }
 reqwest-tracing = { version = "0.5.0", features = ["opentelemetry_0_22"] }
-lazy_static = "1.4.0"

@@ -1,8 +1,9 @@
 use serde::Serialize;
-use serde_json::{json, Value};
 use tracing::instrument;
 
 use crate::clients::notion::notion_db_client::NotionDBClient;
+use crate::model::notion_task::{Results};
+use crate::model::task::Task;
 
 pub fn notion_db_service(notion_db_client: &'static NotionDBClient) -> NotionDBService {
     NotionDBService { 
@@ -47,15 +48,13 @@ impl NotionDBService {
 
         let res = &self.notion_db_client.query(filter).await?;
 
-        // let proc: Value = serde_json::from_str(res.as_str())?;
-        // 
-        // let objectType = &proc["object"];
-        // let list = &proc["results"];
+        let results: Results = Results::deserialize(res);
 
+        let a = results.results.iter().map(|a| { a.properties.to_task()}).collect::<Vec<Task>>();
 
-
-
-        Ok(res.to_string())
+        let b= serde_json::to_string(&a)?;
+        
+        Ok(b)
     }
 
 }
