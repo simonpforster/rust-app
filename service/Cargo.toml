@@ -17,13 +17,15 @@ bytes = "1.6.0"
 serde = { version = "1.0.202", features = ["derive"] }
 serde_yaml = "0.9"
 serde_json = "1.0.117"
+lazy_static = "1.4.0"
 
 # HTTP
 hyper = { version = "1.2.0", features = ["full"] }
 hyper-util = { version = "0.1.5", features = ["full"] }
 http-body-util = "0.1.0"
 # HTTP CLIENT
-reqwest = { version = "0.12.4", default-features = false, features = ["rustls-tls"] }
+reqwest = { version = "0.12.4", default-features = false, features = ["rustls-tls", "json"] }
+reqwest-middleware = { version = "0.3.1", features = ["json"] }
 
 # TRACING
 tracing = "0.1"
@@ -32,6 +34,4 @@ tracing-opentelemetry = "0.24.0"
 opentelemetry = "0.23.0"
 opentelemetry_sdk = { version = "0.23.0", features = [ "rt-tokio"] }
 opentelemetry-otlp = { version = "*", features = ["grpc-tonic"] }
-reqwest-middleware = "0.3.1"
 reqwest-tracing = { version = "0.5.0", features = ["opentelemetry_0_22"] }
-lazy_static = "1.4.0"

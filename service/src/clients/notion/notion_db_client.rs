@@ -1,6 +1,9 @@
+
 use async_trait::async_trait;
-use hyper::Method;
+use hyper::{header, Method, StatusCode};
+use log::error;
 use tracing::{instrument, Instrument};
+
 use crate::clients::{DependencyStatus, Healthcheck};
 use crate::clients::notion::NotionClient;
 use crate::config::application_config::NotionDBServiceConfig;
@@ -22,19 +25,45 @@ pub struct NotionDBClient {
     path: String,
 }
 
+impl NotionDBClient {
+
+    #[instrument(name = "notion-db-client", fields(filter = filter))]
+    pub async fn query(&self, filter: &str) -> crate::clients::Result<String> {
+        
+        let res = self.notion_client.request(
+            Method::POST,
+            format!("{}{}/query", &self.path, &self.database_id),
+        )
+            .header("content-type", "application/json")
+            .body(filter.to_string())
+            .send().in_current_span().await?;
+        
+
+        
+        let status = &res.status();
+        match status { 
+            &StatusCode::OK => Ok(res.text().await?),
+            e => {
+                error!("Error!!!!: {}", e);
+                Ok(res.text().await?)
+            },
+        }
+    }
+}
+
 #[async_trait]
 impl Healthcheck for NotionDBClient {
     fn get_name(&self) -> &str { &self.name }
 
     #[instrument(name = "notion-db-client")]
     async fn healthcheck(&self) -> crate::clients::Result<DependencyStatus> {
-        let a = self.notion_client.request(
+        let res = self.notion_client.request(
             Method::GET,
-            format!("{}{}", &self.path,  &self.database_id)
+            format!("{}{}", &self.path, &self.database_id),
         ).send().await?;
 
-        if a.status() == 200 { Ok(DependencyStatus::Healthy) } else {
-            Ok(DependencyStatus::Unhealthy(format!("{}: {}", a.status(), a.text().await.unwrap())))
+        if res.status() == 200 { Ok(DependencyStatus::Healthy) } else {
+            Ok(DependencyStatus::Unhealthy(format!("{}: {}", res.status(), res.text().await.unwrap())))
         }
     }
 }

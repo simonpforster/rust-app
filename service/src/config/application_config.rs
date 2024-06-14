@@ -1,60 +1,35 @@
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct ApplicationConfig {
     pub logging: LoggerConfig,
     pub server: ServerConfig,
     pub notion: NotionConfig,
+    pub monitoring: MonitoringConfig,
 }
 
-impl PartialEq for ApplicationConfig {
-    fn eq(&self, other: &Self) -> bool {
-        (self.logging == other.logging)
-            & (self.server == other.server)
-            & (self.notion == other.notion)
-    }
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct LoggerConfig {
     pub log_level: String,
     pub pattern: String,
 }
 
-impl PartialEq for LoggerConfig {
-    fn eq(&self, other: &Self) -> bool {
-        (self.log_level == other.log_level)
-            & (self.pattern == other.pattern)
-    }
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct ServerConfig {
     pub port: u16,
 }
 
-impl PartialEq for ServerConfig {
-    fn eq(&self, other: &Self) -> bool { self.port == other.port }
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct NotionConfig {
     pub client: NotionClientConfig,
     pub db: NotionDBServiceConfig,
 }
 
-impl PartialEq for NotionConfig {
-    fn eq(&self, other: &Self) -> bool {
-        (self.client == other.client)
-            & (self.db == other.db)
-    }
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct NotionClientConfig {
     pub url: String,
@@ -62,26 +37,23 @@ pub struct NotionClientConfig {
     pub key: String,
 }
 
-impl PartialEq for NotionClientConfig {
-    fn eq(&self, other: &Self) -> bool {
-        (self.url == other.url)
-            & (self.notion_version == other.notion_version)
-            & (self.key == other.key)
-    }
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "kebab-case")]
 pub struct NotionDBServiceConfig {
     pub path: String,
     pub id: String,
 }
 
-impl PartialEq for NotionDBServiceConfig {
-    fn eq(&self, other: &Self) -> bool {
-        (self.path == other.path)
-            & (self.id == other.id)
-    }
+#[derive(Deserialize, Debug, PartialEq)]
+#[serde(rename_all = "kebab-case")]
+pub struct MonitoringConfig {
+    pub exporter: OtlpExporterConfig,
+}
+
+#[derive(Deserialize, Debug, PartialEq)]
+#[serde(rename_all = "kebab-case")]
+pub struct OtlpExporterConfig {
+    pub url: String,
 }
 
 #[cfg(test)]
@@ -108,6 +80,10 @@ mod tests {
               db:
                 path: \"path/to\"
                 id: \"1234\"
+
+            monitoring:
+              exporter:
+                url: \"tempo\"
             ";
         let parsed_config: ApplicationConfig = serde_yaml::from_str(test_config_str).unwrap();
 
@@ -126,6 +102,11 @@ mod tests {
                 db: NotionDBServiceConfig {
                     path: "path/to".to_string(),
                     id: "1234".to_string(),
+                },
+            },
+            monitoring: MonitoringConfig {
+                exporter: OtlpExporterConfig {
+                    url: "tempo".to_string()
                 },
             },
         };

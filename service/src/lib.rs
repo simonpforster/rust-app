@@ -4,3 +4,4 @@ mod router;
 mod routes;
 pub mod services;
 pub mod startup;
+mod model;
