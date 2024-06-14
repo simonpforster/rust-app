@@ -30,6 +30,28 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
+      - name: Build Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./service/Dockerfile
+          push: false
+
+  Docker-image-push:
+    if: success() && github.ref == 'refs/heads/master'
+    needs: [ Rust-build, Docker-image-build ]
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -41,13 +63,20 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: simonpforster/rust-app
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
 
-      - name: Build Docker image
+      - name: Date
+        run: echo "TIME=${{ github.event.repository.updated_at}}" | sed 's/:/./g' >> $GITHUB_ENV
+
+      - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./service/Dockerfile
-          push: false
-          tags: ${{ steps.meta.outputs.tags }}
+          push: true
+          tags: "${{ steps.meta.outputs.tags }}"
           labels: ${{ steps.meta.outputs.labels }}
