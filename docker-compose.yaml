@@ -7,6 +7,7 @@ services:
     build:
       context: .
       dockerfile: service/Dockerfile
+    env_file: "./api_keys/rust-app.env"
     environment:
       - ENVIRONMENT=docker
     ports:
