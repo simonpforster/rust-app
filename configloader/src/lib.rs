@@ -1,18 +1,19 @@
 use config::{Case, Config, ConfigError, Environment, File};
 use serde::Deserialize;
 use std::env;
+use std::path::Prefix;
 use thiserror::Error;
 
 pub trait Configuration: Sized {
     /// Load this configuration.
-    fn load(module: &str) -> Result<Self, Error>;
+    fn load(module: &str, prefix: &str) -> Result<Self, Error>;
 }
 
 impl<'de, T> Configuration for T
 where
     T: Deserialize<'de>,
 {
-    fn load(module: &str) -> Result<Self, Error> {
+    fn load(module: &str, prefix: &str) -> Result<Self, Error> {
         let config_dir = &format!("{}/resources", module);
 
         let env = env::var("ENVIRONMENT").unwrap_or("local".into());
@@ -23,7 +24,7 @@ where
                 "{}/config_{}.yaml",
                 config_dir, env
             )))
-            .add_source(Environment::default().separator("_"))
+            .add_source(Environment::default().separator("_").prefix(prefix))
             .build()
             .map_err(Error::Load)?
             .try_deserialize()
