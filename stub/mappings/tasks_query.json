@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "url": "/private/status"
+    "url": "/v1/databases/"
   },
 
   "response": {
