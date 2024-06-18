@@ -1,7 +1,7 @@
-use config::{Case, Config, ConfigError, Environment, File};
-use serde::Deserialize;
 use std::env;
-use std::path::Prefix;
+
+use config::{Config, ConfigError, Environment, File};
+use serde::Deserialize;
 use thiserror::Error;
 
 pub trait Configuration: Sized {
