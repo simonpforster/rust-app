@@ -1,6 +1,6 @@
 
 use async_trait::async_trait;
-use hyper::{header, Method, StatusCode};
+use hyper::{Method, StatusCode};
 use log::error;
 use tracing::{instrument, Instrument};
 
