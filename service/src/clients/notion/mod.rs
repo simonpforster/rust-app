@@ -37,7 +37,6 @@ fn notion_headers(api_key: &str, notion_version: &str) -> HeaderMap {
     let auth_header = header::HeaderValue::from_str(api_key).unwrap();
 
     static NOTION_VERSION: &'static str = "notion-version";
-    static CONTENT_TYPE: &'static str = "content-type";
     let notion_version_header_value = header::HeaderValue::from_str(notion_version).unwrap();
 
     headers.insert(AUTHORIZATION, auth_header);
