@@ -5,23 +5,20 @@ use crate::clients::notion::notion_db_client::NotionDBClient;
 use crate::model::notion_task::{Results};
 use crate::model::task::{Task, Tasks};
 
-pub fn notion_db_service<'serv>(notion_db_client: &'serv NotionDBClient,
-                                handlebars: Handlebars<'serv>) -> NotionDBService<'serv> {
+pub fn notion_db_service(notion_db_client: &NotionDBClient) -> NotionDBService {
     NotionDBService {
         notion_db_client,
-        handlebars,
     }
 }
 
 #[derive(Clone, Debug)]
 pub struct NotionDBService<'serv> {
     notion_db_client: &'serv NotionDBClient,
-    handlebars: Handlebars<'serv>,
 }
 
 impl<'serv> NotionDBService<'serv> {
     #[instrument]
-    pub async fn get_entries(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn get_entries(&self) -> Result<Tasks, Box<dyn std::error::Error + Send + Sync>> {
         let filter = r#"
         {
           "filter": {
@@ -52,10 +49,8 @@ impl<'serv> NotionDBService<'serv> {
 
         let results: Results = Results::deserialize(res);
 
-        let tasks = results.results.iter().map(|a| { a.properties.to_task() }).collect::<Vec<Task>>();
+        let tasks = Tasks { tasks: results.results.iter().map(|a| { a.properties.to_task() }).collect::<Vec<Task>>() };
 
-        let response: String = self.handlebars.render("tasks", &Tasks { tasks })?;
-
-        Ok(response)
+        Ok(tasks)
     }
 }

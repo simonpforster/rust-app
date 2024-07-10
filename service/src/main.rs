@@ -75,10 +75,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // init handlebars templates
     let mut handlebars = Handlebars::new();
     
+    handlebars.register_template_file("index", "./service/resources/templates/index.hbs")?;
     handlebars.register_template_file("tasks", "./service/resources/templates/tasks.hbs")?;
     
     // init services
-    let notion_dbservice: NotionDBService = notion_db_service(&NOTION_DB_CLIENT, handlebars);
+    let notion_dbservice: NotionDBService = notion_db_service(&NOTION_DB_CLIENT);
 
     // init http server
     let address1: SocketAddr =
@@ -102,12 +103,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         
         let notion = notion_dbservice.clone();
         let hc = healthcheck_service.clone();
+        let h = handlebars.clone();
+        
         
         tokio::task::spawn(async move {
             if let Err(err) = http1::Builder::new()
                 .serve_connection(
                     io,
-                    service_fn(|request| router::request_handler(request, &notion, &hc)),
+                    service_fn(|request| router::request_handler(request, &notion, &hc, &h)),
                 )
                 .await
             {
