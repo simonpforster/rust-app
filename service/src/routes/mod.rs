@@ -13,6 +13,7 @@ pub fn get_index(handlebars: &Handlebars) -> ResponseResult {
 
     let r = Response::builder()
         .status(200)
+        .header("Content-Type", "text/html")
         .body(utils::full(a))
         .unwrap();
     Ok(r)

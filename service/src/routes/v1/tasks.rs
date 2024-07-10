@@ -13,6 +13,7 @@ pub async fn tasks<'a>(notion_dbservice: &NotionDBService<'_>, handlebars: &Hand
     
     let res = Response::builder()
         .status(200)
+        .header("Content-Type", "text/html")
         .body(utils::full(body))
         .unwrap();
     Ok(res)
