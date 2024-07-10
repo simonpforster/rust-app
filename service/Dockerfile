@@ -11,8 +11,6 @@ COPY --from=builder /rust-app/service/resources /service/resources
 
 ENV RUST_BACKTRACE=full
 
-RUN apt-get update && apt install -y openssl
-
 EXPOSE 8080
 
 CMD ["service"]
