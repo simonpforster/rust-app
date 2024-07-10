@@ -1,7 +1,5 @@
 use handlebars::Handlebars;
 use hyper::Response;
-use log4rs::Handle;
-use crate::model::task::Task;
 use crate::router::ResponseResult;
 
 pub mod private;

@@ -1,12 +1,9 @@
 use std::collections::HashMap;
+
 use futures_util::future::join_all;
-use futures_util::stream;
-use futures_util::stream::Iter;
-use crate::clients::{Healthcheck, Result, DependencyStatus};
-use log::error;
-use tokio::join;
-use tokio::task::JoinSet;
 use tracing::{instrument, Instrument};
+
+use crate::clients::{DependencyStatus, Healthcheck, Result};
 
 #[derive(Clone, Debug)]
 pub struct HealthcheckService<'serv> {
@@ -16,7 +13,6 @@ pub struct HealthcheckService<'serv> {
 impl<'serv> HealthcheckService<'serv> {
     #[instrument(name = "healthcheck_all")]
     pub async fn check_all<'check>(&'serv self) -> Result<HashMap<String, DependencyStatus>> {
-        let mut set: JoinSet<(String, Result<DependencyStatus>)> = JoinSet::new();
 
         let mut v = Vec::new();
 

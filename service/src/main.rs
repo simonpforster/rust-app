@@ -9,7 +9,6 @@ use service::config::application_config::{ApplicationConfig, LoggerConfig, OtlpE
 use service::services::healthcheck_service::HealthcheckService;
 use service::router;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use std::pin::{pin, Pin};
 use std::str::FromStr;
 use std::time::Duration;
 use handlebars::Handlebars;

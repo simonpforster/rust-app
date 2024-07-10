@@ -1,4 +1,3 @@
-use handlebars::Handlebars;
 use tracing::instrument;
 
 use crate::clients::notion::notion_db_client::NotionDBClient;

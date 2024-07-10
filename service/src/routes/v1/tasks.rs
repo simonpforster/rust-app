@@ -1,4 +1,3 @@
-use std::pin::Pin;
 use handlebars::Handlebars;
 use hyper::Response;
 use tracing::{Instrument, instrument};
