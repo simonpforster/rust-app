@@ -7,13 +7,13 @@ use crate::routes;
 use crate::services::healthcheck_service::HealthcheckService;
 use crate::services::notion_service::NotionDBService;
 
-pub(crate) type ResponseResult = Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error>;
+pub type ResponseResult = Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error>;
 
 #[tracing::instrument(name = "request_router")]
-pub(crate) async fn request_handler(
+pub async fn request_handler<'a>(
     req: Request<hyper::body::Incoming>,
-    notion_dbservice: &'static NotionDBService,
-    healthcheck_service: &'static HealthcheckService,
+    notion_dbservice: &NotionDBService<'a>,
+    healthcheck_service: &HealthcheckService<'a>,
 ) -> ResponseResult {
     match (req.method(), req.uri().path()) {
         (&Method::GET, "/private/status") => routes::private::status(),

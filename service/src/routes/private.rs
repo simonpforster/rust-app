@@ -12,7 +12,7 @@ pub fn status() -> ResponseResult {
 }
 
 #[instrument(name = "healthcheck_route")]
-pub async fn healthcheck(healthcheck_service: &'static HealthcheckService) -> ResponseResult {
+pub async fn healthcheck<'a>(healthcheck_service: &HealthcheckService<'a>) -> ResponseResult {
     info!("Healthcheck polled");
 
     let result = healthcheck_service.check_all().await;

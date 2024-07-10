@@ -13,6 +13,7 @@ pub trait Healthcheck: Send + Sync + Debug {
     async fn healthcheck(&self) -> Result<DependencyStatus>;
 }
 
+#[derive(Clone)]
 pub enum DependencyStatus {
     Healthy,
     Unhealthy(String),

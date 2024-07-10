@@ -1,5 +1,5 @@
 use configloader::Configuration;
-use log::{info, LevelFilter, SetLoggerError};
+use log::{error, info, LevelFilter, SetLoggerError};
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::config::{Appender, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
@@ -7,10 +7,15 @@ use log4rs::{Config, Handle};
 use service::clients::Healthcheck;
 use service::config::application_config::{ApplicationConfig, LoggerConfig, OtlpExporterConfig};
 use service::services::healthcheck_service::HealthcheckService;
-use service::startup;
+use service::router;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::pin::{pin, Pin};
 use std::str::FromStr;
 use std::time::Duration;
+use handlebars::Handlebars;
+use hyper::server::conn::http1;
+use hyper::service::service_fn;
+use hyper_util::rt::TokioIo;
 use lazy_static::lazy_static;
 use opentelemetry::{KeyValue};
 use opentelemetry::trace::TraceError;
@@ -39,11 +44,8 @@ lazy_static! {
         &NOTION_CLIENT,
         &CONFIG.notion.db
     );
-    
-    //define services
-    
-    static ref NOTION_DB_SERVICE: NotionDBService = notion_db_service(&NOTION_DB_CLIENT);
-    
+
+    static ref HANDLEBARS: Handlebars<'static> = Handlebars::new();
 }
 
 #[tokio::main]
@@ -61,29 +63,58 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     tracing::subscriber::set_global_default(subscriber)?;
 
     // init clients
-    let notion_db_service_ref: &NotionDBClient = &NOTION_DB_CLIENT;
+    let notion_db_client_ref: &NotionDBClient = &NOTION_DB_CLIENT;
 
     let vec: Vec<Box<&dyn Healthcheck>> = vec![
-        Box::new(notion_db_service_ref),
+        Box::new(notion_db_client_ref),
     ];
 
     // init healthcheck service
     let healthcheck_service: HealthcheckService = HealthcheckService { clients: vec };
 
-    let boxed_check: &HealthcheckService = Box::leak(Box::new(healthcheck_service)) as &'static _;
+    // init handlebars templates
+    let mut handlebars = Handlebars::new();
+    
+    handlebars.register_template_file("tasks", "./service/resources/templates/tasks.hbs")?;
+    
+    // init services
+    let notion_dbservice: NotionDBService = notion_db_service(&NOTION_DB_CLIENT, handlebars);
 
     // init http server
     let address1: SocketAddr =
         SocketAddr::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), CONFIG.server.port);
 
-    let listener = TcpListener::bind(address1).await?;
-    startup::run(listener, &NOTION_DB_SERVICE, boxed_check)
-        .await
-        .expect("Unable to start the server");
+    let tcp_listener = TcpListener::bind(address1).await?;
 
     info!("Server is listening on http://{}", address1);
 
-    Ok(())
+
+    info!(
+        "Starting server at: {}:{}",
+        &tcp_listener.local_addr()?.ip().to_string(),
+        tcp_listener.local_addr()?.port()
+    );
+    
+    loop {
+        let (stream, _) = tcp_listener.accept().await?;
+        let io = TokioIo::new(stream);
+
+        
+        let notion = notion_dbservice.clone();
+        let hc = healthcheck_service.clone();
+        
+        tokio::task::spawn(async move {
+            if let Err(err) = http1::Builder::new()
+                .serve_connection(
+                    io,
+                    service_fn(|request| router::request_handler(request, &notion, &hc)),
+                )
+                .await
+            {
+                error!("Error serving connection: {:?}", err);
+            }
+        });
+    }
 }
 
 fn logger_setup(logger_config: &LoggerConfig) -> Result<Handle, SetLoggerError> {

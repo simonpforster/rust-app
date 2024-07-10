@@ -6,3 +6,8 @@ pub struct Task {
     pub created: String,
     pub status: String
 }
+
+#[derive(Debug, Serialize, PartialEq)]
+pub struct Tasks {
+    pub tasks: Vec<Task>,
+}
