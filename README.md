@@ -2,15 +2,8 @@
 
 ## Service
 
-``cargo run --bin service`` or ``docker-compose up``
+``cargo run`` or ``docker-compose up``
 
 ##  Load test
 
 ``cargo run --bin loadtest`` while service is running
-
-## Completion checklist
-
- - [] Status endpoint
- - [] Health check endpoint
- - [] 
- - []
