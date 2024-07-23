@@ -8,7 +8,13 @@ use crate::clients::DependencyStatus;
 
 pub fn status() -> ResponseResult {
     info!("Status polled");
-    Ok(Response::new(utils::full("OK")))
+    Ok(
+        Response::builder()
+            .status(200)
+            .header("Content-Type", "application/json")
+            .body(utils::full("OK"))
+            .unwrap()
+    )
 }
 
 #[instrument(name = "healthcheck_route")]
@@ -16,26 +22,25 @@ pub async fn healthcheck<'a>(healthcheck_service: &HealthcheckService<'a>) -> Re
     info!("Healthcheck polled");
 
     let result = healthcheck_service.check_all().await;
-    
+
     match result {
         Ok(healthcheck_result) => {
-            let some: bool = healthcheck_result.iter().fold(true, 
-            |a, (_, status)| {
-                    match status {
-                        DependencyStatus::Unhealthy(_) => false,
-                        DependencyStatus::Healthy => a,
-                    }
-                }
-            );
-            
-            let code = match some {
-                true => 200,
-                false => 500,
-            };
-            
+            let some: bool = healthcheck_result.iter()
+                .fold(true,
+                      |a, (_, status)| {
+                          match status {
+                              DependencyStatus::Unhealthy(_) => false,
+                              DependencyStatus::Healthy => a,
+                          }
+                      },
+                );
+
+            let code = if some { 200 } else { 500 };
+
             let json = serde_json::to_string_pretty(&healthcheck_result).unwrap();
             let res = Response::builder()
                 .status(code)
+                .header("Content-Type", "application/json")
                 .body(utils::full(json))
                 .unwrap();
             Ok(res)
