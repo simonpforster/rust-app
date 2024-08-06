@@ -39,7 +39,7 @@ jobs:
           push: false
 
   Functional-test:
-    #needs: [ Rust-build, Docker-image-build ]
+    needs: [ Rust-build, Docker-image-build ]
     runs-on: ubuntu-latest
     steps:
 
@@ -49,7 +49,7 @@ jobs:
       - name: Run docker compose
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
-          compose-file: "./docker-compose.yaml"
+          compose-file: "./docker-compose-stubbed.yaml"
 
       - name: Run functional test
         run: cargo test --package functional-test

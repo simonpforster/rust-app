@@ -6,8 +6,12 @@ services:
     build:
       context: .
       dockerfile: service/Dockerfile
-    env_file: "./api_keys/rust-app.env"
     environment:
-      - ENVIRONMENT=docker
+      - ENVIRONMENT=docker_stubbed
     ports:
       - "8080:8080"
+
+  stub:
+    build: stub/.
+    ports:
+    - "8081:8080"
