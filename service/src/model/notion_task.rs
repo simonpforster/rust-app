@@ -150,11 +150,12 @@ mod tests {
         assert_eq!(a.get_created_time(), expected)
     }
 
+    #[test]
     fn status_deserialization() {
         let a: Task = serde_json::from_str(EXAMPLE_JSON).unwrap();
 
         let expected = "Not started".to_string();
 
-        assert_eq!(a.get_created_time(), expected)
+        assert_eq!(a.get_status(), expected)
     }
 }
