@@ -31,7 +31,7 @@ reqwest-middleware = { version = "0.3.1", features = ["json"] }
 # TRACING
 tracing = "0.1"
 tracing-subscriber = "0.3.18"
-tracing-opentelemetry = "0.24.0"
+tracing-opentelemetry = "0.23.0"
 opentelemetry = "0.23.0"
 opentelemetry_sdk = { version = "0.23.0", features = [ "rt-tokio"] }
 opentelemetry-otlp = { version = "*", features = ["grpc-tonic"] }
