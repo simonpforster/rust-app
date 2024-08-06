@@ -14,14 +14,8 @@ services:
       - RA_NOTION_CLIENT_KEY=fakeKey
     ports:
       - "8080:8080"
-    networks:
-      - local-monitoring
 
   stub:
     build: stub/.
     ports:
     - "8081:8080"
-
-networks:
-  local-monitoring:
-    external: true
