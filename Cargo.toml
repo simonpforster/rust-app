@@ -2,9 +2,13 @@
 resolver = "2"
 members = [
     "service",
-    "loadtest",
-    "configloader"
+    "load-test",
+    "functional-test",
+    "configloader",
 ]
+
+[workspace.package]
+authors = ["Simon <simon.forster98@gmail.com"]
 
 [profile.release]
 strip = true

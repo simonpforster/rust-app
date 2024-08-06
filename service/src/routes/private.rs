@@ -55,7 +55,7 @@ mod tests {
     use http_body_util::BodyExt;
 
     #[tokio::test]
-    async fn status_ok() {
+    async fn route_status_ok() {
         let response = status().unwrap_or_default();
         let (parts, some) = response.into_parts();
 
