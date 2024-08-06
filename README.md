@@ -1,6 +1,6 @@
 # Rust app
 
-![master badge](https://github.com/simonpforster/rust-app/actions/workflows/on-pr.yml/badge.svg?branch=master)
+[![PR Check](https://github.com/simonpforster/rust-app/actions/workflows/on-pr.yml/badge.svg?branch=master)](https://github.com/simonpforster/rust-app/actions/workflows/on-pr.yml)
 
 ## Service
 

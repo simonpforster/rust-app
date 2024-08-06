@@ -14,7 +14,7 @@ where
     T: Deserialize<'de>,
 {
     fn load(module: &str, prefix: &str) -> Result<Self, Error> {
-        let config_dir = &format!("{}/resources", module);
+        let config_dir = &format!("{}/resources/config", module);
 
         let env = env::var("ENVIRONMENT").unwrap_or("local".into());
 
