@@ -1,5 +1,7 @@
 # Rust app
 
+![example workflow](https://github.com/simonpforster/rust-app/.github/workflows/on-pr.yml/badge.svg)
+
 ## Service
 
 ``cargo run`` or ``docker compose up -d``
