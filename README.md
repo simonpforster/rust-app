@@ -1,5 +1,7 @@
 # Rust app
 
+![master badge](https://github.com/simonpforster/rust-app/actions/workflows/on-pr.yml/badge.svg?branch=master)
+
 ## Service
 
 ``cargo run`` or ``docker compose up -d``
