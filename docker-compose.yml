@@ -9,7 +9,7 @@ services:
       dockerfile: service/Dockerfile
     #env_file: "./api_keys/rust-app.env"
     environment:
-      - ENVIRONMENT=docker
+      - ENVIRONMENT=docker_stubbed
       - RA_NOTION_DB_ID=fakeDb
       - RA_NOTION_CLIENT_KEY=fakeKey
     ports:
