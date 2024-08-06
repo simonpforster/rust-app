@@ -38,9 +38,25 @@ jobs:
           file: ./service/Dockerfile
           push: false
 
+  Functional-test:
+    needs: [ Rust-build, Docker-image-build ]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./docker-compose.yml"
+
+      - name: Run functional test
+        run: cargo test --package function-test
+
   Docker-image-push:
     if: success() && github.ref == 'refs/heads/master'
-    needs: [ Rust-build, Docker-image-build ]
+    needs: [ Rust-build, Docker-image-build, Functional-test ]
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     permissions:
