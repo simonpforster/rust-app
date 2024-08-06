@@ -52,7 +52,7 @@ jobs:
           compose-file: "./docker-compose.yml"
 
       - name: Run functional test
-        run: cargo test --package function-test
+        run: cargo test --package functional-test
 
   Docker-image-push:
     if: success() && github.ref == 'refs/heads/master'
