@@ -21,7 +21,7 @@ jobs:
         run: cargo build
 
       - name: Run tests
-        run: cargo test --workspace --package service
+        run: cargo test --package service
 
   Docker-image-build:
     runs-on: ubuntu-latest
