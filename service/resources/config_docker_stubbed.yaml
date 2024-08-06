@@ -6,5 +6,5 @@ notion:
     id: "test_database_id"
     
 monitoring:
-  otlp-exporter:
+  exporter:
     url: "http://tempo:4317/"
