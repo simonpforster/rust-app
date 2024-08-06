@@ -1,6 +1,6 @@
 # Rust app
 
-![example workflow](https://github.com/simonpforster/rust-app/.github/workflows/on-pr.yml/badge.svg)
+![master badge](https://github.com/simonpforster/rust-app/actions/workflows/on-pr.yml/badge.svg?branch=master)
 
 ## Service
 
