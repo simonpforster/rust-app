@@ -17,7 +17,7 @@ use hyper::service::service_fn;
 use hyper_util::rt::TokioIo;
 use lazy_static::lazy_static;
 use opentelemetry::{KeyValue};
-use opentelemetry::trace::TraceError;
+use opentelemetry::trace::{TraceError, TracerProvider};
 use tokio::net::TcpListener;
 use service::clients::notion::{notion_client, NotionClient};
 use opentelemetry_otlp::WithExportConfig;
@@ -53,11 +53,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     logger_setup(&CONFIG.logging)?;
 
     //init tracing
-    let tracer = tracing_setup(&CONFIG.monitoring.exporter)?;
+    let tracer: Tracer = tracing_setup(&CONFIG.monitoring.exporter)?;
 
-    let telemetry = tracing_opentelemetry::layer().with_tracer(tracer);
+    let otel_layer = tracing_opentelemetry::layer().with_tracer(tracer);
 
-    let subscriber: Layered<OpenTelemetryLayer<Registry, Tracer>, Registry, Registry> = Registry::default().with(telemetry);
+    let subscriber: Layered<OpenTelemetryLayer<Registry, Tracer>, Registry, Registry> = Registry::default().with(otel_layer);
 
     tracing::subscriber::set_global_default(subscriber)?;
 
@@ -73,10 +73,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // init handlebars templates
     let mut handlebars = Handlebars::new();
-    
+
     handlebars.register_template_file("index", "./service/resources/templates/index.hbs")?;
     handlebars.register_template_file("tasks", "./service/resources/templates/tasks.hbs")?;
-    
+
     // init services
     let notion_dbservice: NotionDBService = notion_db_service(&NOTION_DB_CLIENT);
 
@@ -94,17 +94,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         &tcp_listener.local_addr()?.ip().to_string(),
         tcp_listener.local_addr()?.port()
     );
-    
+
     loop {
         let (stream, _) = tcp_listener.accept().await?;
         let io = TokioIo::new(stream);
 
-        
+
         let notion = notion_dbservice.clone();
         let hc = healthcheck_service.clone();
         let h = handlebars.clone();
-        
-        
+
+
         tokio::task::spawn(async move {
             if let Err(err) = http1::Builder::new()
                 .serve_connection(
@@ -137,18 +137,20 @@ fn logger_setup(logger_config: &LoggerConfig) -> Result<Handle, SetLoggerError> 
 }
 
 fn tracing_setup(otlp_exporter_config: &OtlpExporterConfig) -> Result<Tracer, TraceError> {
+    let exporter = opentelemetry_otlp::new_exporter()
+        .tonic()
+        .with_endpoint(&otlp_exporter_config.url)
+        .with_timeout(Duration::from_secs(3));
+    
     opentelemetry_otlp::new_pipeline()
         .tracing()
-        .with_exporter(opentelemetry_otlp::new_exporter()
-            .tonic()
-            .with_endpoint(&otlp_exporter_config.url)
-            .with_timeout(Duration::from_secs(3)))
-        .with_trace_config(trace::config()
+        .with_exporter(exporter)
+        .with_trace_config(trace::Config::default()
             .with_sampler(Sampler::AlwaysOn)
             .with_id_generator(RandomIdGenerator::default())
             .with_max_events_per_span(64)
             .with_max_attributes_per_span(16)
             .with_max_events_per_span(16)
-            .with_resource(Resource::new(vec![KeyValue::new("service.name", "rust-app-service")])))
-        .install_batch(opentelemetry_sdk::runtime::Tokio)
+            .with_resource(Resource::new(vec![KeyValue::new("service.name", "rust-app-service")]))
+        ).install_batch(opentelemetry_sdk::runtime::Tokio).map(|i| i.tracer("otel_tracer"))
 }
