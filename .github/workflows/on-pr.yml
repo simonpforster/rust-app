@@ -39,7 +39,7 @@ jobs:
           push: false
 
   Functional-test:
-    needs: [ Rust-build, Docker-image-build ]
+    #needs: [ Rust-build, Docker-image-build ]
     runs-on: ubuntu-latest
     steps:
 
