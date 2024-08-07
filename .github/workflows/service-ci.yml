@@ -17,9 +17,9 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@nightly
 
-      - name: Build
+      - name: Check
         run: cargo check
 
       - name: Run tests
