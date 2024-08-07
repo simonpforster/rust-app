@@ -26,7 +26,7 @@ jobs:
 
       - name: Prepare junit report
         id: cargo_reporter
-        uses:  innoq/action-cargo-test-report
+        uses: innoq/action-cargo-test-report
         with:
           cargo-test-report-json: 'results.json'
 
@@ -73,7 +73,7 @@ jobs:
 
       - name: Prepare junit report
         id: cargo_reporter
-        uses:  innoq/action-cargo-test-report
+        uses: innoq/action-cargo-test-report
         with:
           cargo-test-report-json: 'results.json'
 
