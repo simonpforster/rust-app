@@ -17,8 +17,10 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
+      - uses: dtolnay/rust-toolchain@stable
+
       - name: Build
-        run: cargo build
+        run: cargo check
 
       - name: Run tests
         run: |
@@ -46,6 +48,8 @@ jobs:
 
       - name: Checkout the repo
         uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
 
       - name: Run docker compose
         uses: hoverkraft-tech/compose-action@v2.0.1
