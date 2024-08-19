@@ -20,7 +20,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@nightly
 
       - name: Check
-        run: cargo check
+        run: cargo check --workspace
 
       - name: Run tests
         run: |
