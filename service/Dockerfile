@@ -1,4 +1,4 @@
-FROM rust:bookworm as chef
+FROM rust:1.76.0-bookworm as chef
 
 RUN cargo install cargo-chef
 WORKDIR /rust-app
@@ -17,7 +17,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
 RUN cargo build --release --bin service
 
-FROM rust:bookworm as runner
+FROM rust:1.76.0-bookworm as runner
 
 COPY --from=builder /rust-app/target/release/service /usr/local/bin
 COPY --from=builder /rust-app/service/resources /service/resources
