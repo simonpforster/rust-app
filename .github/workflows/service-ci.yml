@@ -62,9 +62,34 @@ jobs:
       - name: Run functional test
         run: cargo test --package functional-test
 
+  Load-test:
+    needs: [ Functional-test ]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./docker-compose-stubbed.yaml"
+
+      - name: Run functional test
+        run: cargo run --bin load-test
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Load test report
+          path: "./target/loadtest_report.html"
+
   Docker-image-push:
     if: success() && github.ref == 'refs/heads/master'
-    needs: [ Rust-build, Docker-image-build, Functional-test ]
+    needs: [ Rust-build, Docker-image-build, Functional-test, Load-test ]
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     permissions:

@@ -16,7 +16,7 @@
 
 ``docker compose up -d``
 
-``cargo test --package function-test`` while service is running.
+``cargo test --package functional-test`` while service is running.
 
 ### Load test
 
