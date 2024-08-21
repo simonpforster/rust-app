@@ -84,7 +84,7 @@ jobs:
 
   Docker-image-push:
     if: success() && github.ref == 'refs/heads/master'
-    needs: [ Rust-build, Docker-image-build, Functional-test ]
+    needs: [ Rust-build, Docker-image-build, Functional-test, Load-test ]
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     permissions:
