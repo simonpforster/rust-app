@@ -82,6 +82,11 @@ jobs:
       - name: Run functional test
         run: cargo run --bin load-test
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Load test report
+          path: "./target/loadtest_report.html"
+
   Docker-image-push:
     if: success() && github.ref == 'refs/heads/master'
     needs: [ Rust-build, Docker-image-build, Functional-test, Load-test ]
